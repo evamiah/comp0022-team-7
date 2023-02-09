@@ -14,9 +14,10 @@ services:
       #- /tmp/app/mysqld:/var/run/mysqld
       - ./db:/var/lib/mysql
   
+  #credit: https://sgino209.medium.com/django-sqlite-docker-in-local-production-d082a7044af1
   web:
     build: .
-    
+
     volumes:
       - .:/app
       - .db/db.sqlite3:/db.sqlite3
