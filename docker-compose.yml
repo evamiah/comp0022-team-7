@@ -1,13 +1,5 @@
 version: '3'
 services:
-  php:
-    image: php:8.2-apache
-    depends_on:
-      - db
-    volumes:
-      - ./:/var/www/html
-    ports:
-      - 8080:80
   db:
     image: mysql:8.0
     restart: always
@@ -19,14 +11,30 @@ services:
       - MYSQL_ROOT_PASSWORD=password
       - MYSQL_ALLOW_EMPTY_PASSWORD=1
     volumes:
-      #- ./db:docker-entrypoint-initdb.d
+      #- /tmp/app/mysqld:/var/run/mysqld
       - ./db:/var/lib/mysql
-  phpmyadmin:
-    image: phpmyadmin
-    restart: always
+  
+  web:
+    build: .
+    
+    volumes:
+      - .:/app
+      - .db/db.sqlite3:/db.sqlite3
+    #when MySQL is set up as the db it will need to be changed
+    #depends_on:
+      #- db
+  web_migrate:
+    extends:
+      service: web
+    command: python manage. migrate
+  web_run:
+    extends:
+      service: web
+    #even if the container is connected at 0.0.0.0:8000, locally connect to your local host 
+    #on windows http://127.0.0.1:8000/
+    command: python manage.py runserver 0.0.0.0:8000
     ports:
-      - 8030:80
-    environment:
-      - PMA_HOST=db
-      - PMA_PORT=3306
+      - "8000:8000"
+
+
 
