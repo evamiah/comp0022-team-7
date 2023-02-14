@@ -4,4 +4,7 @@
 </head>
 <body>
     <h1>Hello World!</h1>
+    {% for i in data %}
+        <p> ID: {{ i[0] }} Title: {{ i[1] }}</p>
+    {% endfor %}
 </body>

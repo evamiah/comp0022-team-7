@@ -1,48 +1,21 @@
-version: '3'
+version: "3"
 services:
+  app:
+    build: ./app
+    links:
+      - db
+    ports:
+      - "5000:5000"
   db:
     image: mysql:8.0
-    restart: always
     ports:
       - "3306:3306"
     environment:
-      - MYSQL_DATABASE=php
-      - MYSQL_USER=team_seven
-      - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_ALLOW_EMPTY_PASSWORD=1
+      MYSQL_ROOT_PASSWORD: root
     volumes:
-      - ./db/mysql:/var/lib/mysql
+      - ./db:/docker-entrypoint-initdb.d/:ro
     healthcheck:
         test: ["CMD", "curl", "-f", "http://localhost:3306"]
         interval: 20s
         timeout: 10s
         retries: 5
-  
-  #credit: https://sgino209.medium.com/django-sqlite-docker-in-local-production-d082a7044af1
-  web:
-    build: .
-    volumes:
-       - .:/app
-    ports:
-      - "8000:8000"
-    #when MySQL is set up as the db it will need to be changed
-    depends_on:
-      db:
-        condition: service_healthy
-    links: 
-        - db
-  # web_migrate:
-  #   extends:
-  #     service: web
-  #   command: python manage. migrate
-  # web_run:
-  #   extends:
-  #     service: web
-  #   #even if the container is connected at 0.0.0.0:8000, locally connect to your local host 
-  #   #on windows http://127.0.0.1:8000/
-  #   command: python manage.py runserver 0.0.0.0:8000
-  #   ports:
-  #     - "8000:8000"
-
-
-
