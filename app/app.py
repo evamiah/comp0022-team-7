@@ -2,6 +2,7 @@ from flask import Flask, render_template
 from typing import List, Dict
 import mysql.connector
 import json
+import init
 
 #docker compose setup from: https://www.devopsroles.com/deploy-flask-mysql-app-with-docker-compose/
 app = Flask(__name__)
@@ -24,6 +25,31 @@ def test_table() -> List[Dict]:
     connection.close()
 
     return results
+
+def movies_table() -> List[Dict]:
+    config = {
+        'user': 'root',
+        'password': 'root',
+        'host': 'db',
+        'port': '3306',
+        'database': 'movie_db'
+    }
+    connection = mysql.connector.connect(**config)
+    cursor = connection.cursor()
+    cursor.execute('SELECT * FROM movies')
+    results = cursor.fetchall()
+    cursor.close()
+    connection.close()
+
+    return results
+
+@app.route('/movies')
+def movies() -> str:
+    init.load_movies()
+    #return json.dumps({'test_table': test_table()})
+    movie_data = movies_table()
+    return render_template('movies.html', data=movie_data)
+
 
 @app.route('/')
 def index() -> str:

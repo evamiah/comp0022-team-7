@@ -6,6 +6,12 @@ CREATE TABLE movies_table (
     title VARCHAR(100)
     );
 
+CREATE TABLE movies (
+    movie_id INT PRIMARY KEY, 
+    title VARCHAR(200),
+    release_year INT
+    );
+
 INSERT INTO movies_table (movie_id, title) VALUES 
 (1, 'The Dark Knight'),
 (2, 'Home Alone'),

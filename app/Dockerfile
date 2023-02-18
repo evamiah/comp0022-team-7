@@ -15,5 +15,7 @@ RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted
 
 # Run app.py when the container launches
 COPY app.py /app
+COPY init.py /app
 COPY templates /app/templates
+COPY data /app/data
 CMD ["flask", "run", "--host", "0.0.0.0"]
