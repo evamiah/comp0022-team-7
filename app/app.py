@@ -7,6 +7,7 @@ import init
 #docker compose setup from: https://www.devopsroles.com/deploy-flask-mysql-app-with-docker-compose/
 app = Flask(__name__)
 
+movies_loaded = False
 
 def test_table() -> List[Dict]:
     config = {
@@ -45,7 +46,10 @@ def movies_table() -> List[Dict]:
 
 @app.route('/movies')
 def movies() -> str:
-    init.load_movies()
+    global movies_loaded
+    if not movies_loaded:
+        init.load_movies()
+        movies_loaded = True
     #return json.dumps({'test_table': test_table()})
     movie_data = movies_table()
     return render_template('movies.html', data=movie_data)
