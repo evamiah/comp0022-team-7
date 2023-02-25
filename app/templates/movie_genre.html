@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<head>
+    <title>Movie Genre</title>
+</head>
+<body>
+    {% for i in data %}
+        <p> MovieID: {{ i[0] }} GenreID: {{ i[1] }}</p>
+    {% endfor %}
+</body>
