@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<head>
+    <title>Movie Ratings</title>
+</head>
+<body>
+    {% for i in data %}
+        <p> UserID: {{ i[0] }} MovieID: {{ i[1] }} Rating: {{ i[2] }} Timestamp: {{ i[3] }}</p>
+    {% endfor %}
+</body>

@@ -24,6 +24,31 @@ CREATE TABLE movie_genre (
     FOREIGN KEY (genre_id) REFERENCES genres(genre_id)
     );
 
+CREATE TABLE movie_ratings (
+    user_id INT,
+    movie_id INT,
+    rating FLOAT,
+    time_stamp INT, 
+    PRIMARY KEY (user_id, movie_id, rating),
+    FOREIGN KEY (movie_id) REFERENCES movies(movie_id)
+    );
+
+CREATE TABLE movie_links (
+    movie_id INT,
+    imdb_id VARCHAR(20) UNIQUE,
+    tmdb_id VARCHAR(20),
+    FOREIGN KEY (movie_id) REFERENCES movies(movie_id)
+    );
+
+CREATE TABLE movie_tags (
+    user_id INT,
+    movie_id INT,
+    tag VARCHAR(100),
+    time_stamp INT, 
+    PRIMARY KEY (user_id, movie_id, tag),
+    FOREIGN KEY (movie_id) REFERENCES movies(movie_id)
+    );
+
 INSERT INTO movies_table (movie_id, title) VALUES 
 (1, 'The Dark Knight'),
 (2, 'Home Alone'),

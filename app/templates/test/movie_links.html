@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<head>
+    <title>Movie Links</title>
+</head>
+<body>
+    {% for i in data %}
+        <p> MovieID: {{ i[0] }} ImdbID: {{ i[1] }} TmdbId: {{ i[2] }}</p>
+    {% endfor %}
+</body>

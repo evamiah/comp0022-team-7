@@ -8,6 +8,14 @@ import csv
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
+config = {
+        'user': 'root',
+        'password': 'root',
+        'host': 'db',
+        'port': '3306',
+        'database': 'movie_db'
+    }
+
 # helper function to make sure the titles are in the right format and to extract the date 
 def format_title(title):
     # remove quotes and whitespace at beginning and end
@@ -24,7 +32,7 @@ def format_title(title):
 
     return title, date
 
-# helper function to convert the pipe-separated list of functions to a list of genre ids 
+# helper function to convert the pipe-separated list of genres to a list of genre ids 
 def extract_genre_ids(genres, cursor):
     genres = genres.split('|')
     genre_ids = []
@@ -40,17 +48,9 @@ def extract_genre_ids(genres, cursor):
         else:
             genre_ids.append(20)
             break
-    # logging.debug(genre_ids)
     return genre_ids
 
 def load_movies():
-    config = {
-        'user': 'root',
-        'password': 'root',
-        'host': 'db',
-        'port': '3306',
-        'database': 'movie_db'
-    }
     connection = mysql.connector.connect(**config)
     cursor = connection.cursor()
     
@@ -71,13 +71,6 @@ def load_movies():
     connection.close()
 
 def load_movie_genre():
-    config = {
-        'user': 'root',
-        'password': 'root',
-        'host': 'db',
-        'port': '3306',
-        'database': 'movie_db'
-    }
     connection = mysql.connector.connect(**config)
     cursor = connection.cursor()
     
@@ -99,3 +92,75 @@ def load_movie_genre():
     connection.commit()
     cursor.close()
     connection.close()
+
+def load_movie_ratings():
+    connection = mysql.connector.connect(**config)
+    cursor = connection.cursor()
+
+    # populate the table
+    with open('data/ratings.csv', 'r') as ratings_csv:
+        ratings_csv_r = csv.reader(ratings_csv)
+
+        # skip the first line
+        next(ratings_csv_r)
+
+        for line in ratings_csv_r:
+            user_id = line[0]
+            movie_id = line[1]
+            rating = line[2]
+            timestamp = line[3]
+
+            cursor.execute('INSERT INTO movie_ratings (user_id, movie_id, rating, time_stamp) VALUES (%s, %s, %s, %s);', (user_id, movie_id, rating, timestamp))   
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+def load_movie_links():
+    connection = mysql.connector.connect(**config)
+    cursor = connection.cursor()
+
+    # populate the table
+    with open('data/links.csv', 'r') as links_csv:
+        links_csv_r = csv.reader(links_csv)
+
+        # skip the first line
+        next(links_csv_r)
+
+        for line in links_csv_r:
+            movie_id = line[0]
+            imdb_id = str(line[1])
+            tmdb_id = str(line[2])
+
+            # some movies don't have tmdb links
+            if tmdb_id == '':
+                cursor.execute('INSERT INTO movie_links (movie_id, imdb_id, tmdb_id) VALUES (%s, %s, NULL);', (movie_id, imdb_id))
+            else:
+                cursor.execute('INSERT INTO movie_links (movie_id, imdb_id, tmdb_id) VALUES (%s, %s, %s);', (movie_id, imdb_id, tmdb_id))
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+def load_movie_tags():
+    connection = mysql.connector.connect(**config)
+    cursor = connection.cursor()
+
+    # populate the table
+    with open('data/tags.csv', 'r') as tags_csv:
+        tags_csv_r = csv.reader(tags_csv)
+
+        # skip the first line
+        next(tags_csv_r)
+
+        for line in tags_csv_r:
+            user_id = line[0]
+            movie_id = line[1]
+            tag = line[2]
+            timestamp = line[3]
+
+            cursor.execute('INSERT INTO movie_tags (user_id, movie_id, tag, time_stamp) VALUES (%s, %s, %s, %s);', (user_id, movie_id, tag, timestamp))
+
+    connection.commit()
+    cursor.close()
+    connection.close()    

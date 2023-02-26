@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<head>
+    <title>Movie Tags</title>
+</head>
+<body>
+    {% for i in data %}
+        <p> UserID: {{ i[0] }} MovieID: {{ i[1] }} Tag: {{ i[2] }} Timestamp: {{ i[3] }}</p>
+    {% endfor %}
+</body>
