@@ -3,6 +3,7 @@ from typing import List, Dict
 import mysql.connector
 import json
 import init
+import rating
 import logging
 import time
 import subprocess
@@ -52,7 +53,8 @@ def movie_genre() -> str:
 def movie_ratings() -> str:
     if table_empty('movie_ratings'):
         init.load_movie_ratings()
-    mr_data = test_table('movie_ratings')
+    #mr_data = test_table('movie_ratings')
+    mr_data = rating.analyse_ratings_genre('low', 1, 4)
     return render_template('test/movie_ratings.html', data=mr_data)
 
 @app.route('/movie_links')
@@ -75,6 +77,16 @@ def movies() -> str:
         init.load_movies()
     movie_data = test_table('movies')
     return render_template('test/movies.html', data=movie_data)
+
+@app.route('/q3')
+def q3() -> str:
+    test_data = []
+    test_data.append(rating.analyse_ratings('low', 1)[0][0])
+    test_data.append(rating.analyse_ratings('high', 1)[0][0])
+    for i in range(1,20):
+        test_data.append(rating.analyse_ratings_genre('low', 1, i)[0][0])
+        test_data.append(rating.analyse_ratings_genre('high', 1, i)[0][0])
+    return render_template('q3.html', data=test_data)
 
 @app.route('/')
 def index() -> str:
