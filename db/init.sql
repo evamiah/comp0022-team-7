@@ -9,7 +9,9 @@ CREATE TABLE movies_table (
 CREATE TABLE movies (
     movie_id INT PRIMARY KEY, 
     title VARCHAR(200),
-    release_year INT
+    release_year INT,
+    overview VARCHAR(500),
+    poster_path VARCHAR(200)
     );
 
 CREATE TABLE genres (
@@ -75,3 +77,24 @@ INSERT INTO genres (genre_id, genre) VALUES
 (18, 'Western'),
 (19, 'IMAX'),
 (20, '(no genres listed)');
+
+CREATE TABLE people (
+    person_id INT NOT NULL AUTO_INCREMENT,
+    full_name VARCHAR(50),
+    PRIMARY KEY(person_id)
+    );
+
+
+CREATE TABLE movie_cast (
+    movie_id INT,
+    actor_id INT,
+    FOREIGN KEY (movie_id) REFERENCES movies(movie_id),
+    FOREIGN KEY (actor_id) REFERENCES people(person_id)
+    );
+
+CREATE TABLE movie_directing (
+    movie_id INT,
+    director_id INT,
+    FOREIGN KEY (movie_id) REFERENCES movies(movie_id),
+    FOREIGN KEY (director_id) REFERENCES people(person_id)
+);

@@ -1,4 +1,4 @@
-movie_id,lead_cast,director
+movieId,lead_cast,director
 1,"['Tom Hanks', 'Tim Allen', 'Don Rickles', 'Jim Varney', 'Wallace Shawn']",['John Lasseter']
 2,"['Robin Williams', 'Kirsten Dunst', 'Bradley Pierce', 'Bonnie Hunt', 'Jonathan Hyde']",['Joe Johnston']
 3,"['Walter Matthau', 'Jack Lemmon', 'Ann-Margret', 'Sophia Loren', 'Daryl Hannah']",['Howard Deutch']

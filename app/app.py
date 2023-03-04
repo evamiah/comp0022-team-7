@@ -78,6 +78,28 @@ def movies() -> str:
     movie_data = test_table('movies')
     return render_template('test/movies.html', data=movie_data)
 
+@app.route('/people')
+def movies() -> str:
+    if table_empty('people'):
+        init.load_empty_credit()
+        init.load_people()
+    movie_data = test_table('people')
+    return render_template('test/people.html', data=movie_data)
+
+@app.route('/cast')
+def movies() -> str:
+    if table_empty('movie_cast'):
+        init.load_cast()
+    movie_data = test_table('movie_cast')
+    return render_template('test/movie_cast.html', data=movie_data)
+
+@app.route('/directing')
+def movies() -> str:
+    if table_empty('movie_directing'):
+        init.load_directors()
+    movie_data = test_table('movie_directing')
+    return render_template('test/movie_directing.html', data=movie_data)
+
 @app.route('/q3')
 def q3() -> str:
     test_data = []
@@ -108,6 +130,13 @@ def load_all():
         init.load_movie_ratings()
     if table_empty('movie_tags'):
         init.load_movie_tags()
+    if table_empty('people'):
+        init.load_empty_credit()
+        init.load_people()
+    if table_empty('movie_cast'):
+        init.load_cast()
+    if table_empty('movie_directing'):
+        init.load_directors()
     elapsed_time = time.time() - start_time
     logging.debug(f'Elapsed time: {elapsed_time} seconds')
 
