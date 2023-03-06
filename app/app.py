@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, request
 from typing import List, Dict
 import mysql.connector
 import json
@@ -28,9 +28,14 @@ def table_empty(table_name):
     query = 'SELECT COUNT(*) FROM ' + table_name
     cursor.execute(query)
     result = cursor.fetchone()
+    if table_name == "people":
+        #people table initialised with one value, "N/A"
+        count = result[0] - 1
+    else:
+        count = result[0]
     cursor.close()
     connection.close()
-    return result[0] == 0 
+    return count == 0 
 
 def test_table(table_name) -> List[Dict]:
     connection = mysql.connector.connect(**config)
@@ -79,22 +84,22 @@ def movies() -> str:
     return render_template('test/movies.html', data=movie_data)
 
 @app.route('/people')
-def movies() -> str:
+def people() -> str:
     if table_empty('people'):
-        init.load_empty_credit()
+        #init.load_empty_credit()
         init.load_people()
     movie_data = test_table('people')
     return render_template('test/people.html', data=movie_data)
 
 @app.route('/cast')
-def movies() -> str:
+def movie_cast() -> str:
     if table_empty('movie_cast'):
         init.load_cast()
     movie_data = test_table('movie_cast')
     return render_template('test/movie_cast.html', data=movie_data)
 
 @app.route('/directing')
-def movies() -> str:
+def movie_directing() -> str:
     if table_empty('movie_directing'):
         init.load_directors()
     movie_data = test_table('movie_directing')
@@ -115,6 +120,13 @@ def index() -> str:
     movies = test_table('movies_table')
     return render_template('home.html', data=movies)
 
+#NOTE: temporarily as my browser autmotically add a trailing backslash to urls
+@app.before_request
+def clear_trailing():
+    rp = request.path 
+    if rp != '/' and rp.endswith('/'):
+        return redirect(rp[:-1])
+
 # loads all the tables when the first request is made, takes a while
 # can be commented out if not all tables are needed
 @app.before_first_request
@@ -122,6 +134,8 @@ def load_all():
     start_time = time.time()
     if table_empty('movies'):
         init.load_movies()
+    if table_empty('people'):
+        init.load_people()
     if table_empty('movie_genre'):
         init.load_movie_genre()
     if table_empty('movie_links'):
@@ -130,9 +144,6 @@ def load_all():
         init.load_movie_ratings()
     if table_empty('movie_tags'):
         init.load_movie_tags()
-    if table_empty('people'):
-        init.load_empty_credit()
-        init.load_people()
     if table_empty('movie_cast'):
         init.load_cast()
     if table_empty('movie_directing'):

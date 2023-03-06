@@ -10,7 +10,7 @@ CREATE TABLE movies (
     movie_id INT PRIMARY KEY, 
     title VARCHAR(200),
     release_year INT,
-    overview VARCHAR(500),
+    overview VARCHAR(1000),
     poster_path VARCHAR(200)
     );
 
@@ -83,6 +83,9 @@ CREATE TABLE people (
     full_name VARCHAR(50),
     PRIMARY KEY(person_id)
     );
+
+INSERT INTO people (person_id, full_name) VALUES
+(0, 'N/A');
 
 
 CREATE TABLE movie_cast (
