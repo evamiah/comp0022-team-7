@@ -14,6 +14,7 @@ services:
       MYSQL_ROOT_PASSWORD: root
     volumes:
       - ./db:/docker-entrypoint-initdb.d/:ro
+      - ./db-data:/var/lib/mysql
     healthcheck:
         test: ["CMD", "curl", "-f", "http://localhost:3306"]
         interval: 20s
