@@ -22,6 +22,7 @@ CREATE TABLE genres (
 CREATE TABLE movie_genre (
     movie_id INT,
     genre_id INT,
+    CONSTRAINT PK_movie_genre PRIMARY KEY (movie_id, genre_id),
     FOREIGN KEY (movie_id) REFERENCES movies(movie_id),
     FOREIGN KEY (genre_id) REFERENCES genres(genre_id)
     );

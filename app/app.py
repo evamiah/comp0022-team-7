@@ -22,6 +22,12 @@ config = {
         'database': 'movie_db'
     }
 
+# SELECT *
+# FROM movies JOIN movie_ratings on movies.movie_id = movie_ratings.movie_id
+# JOIN movie_genre on movies.movie_id = movie_genre.movie_id
+# JOIN genre on movie_genre.genre_id = genre.genre_id
+
+
 def table_empty(table_name):
     connection = mysql.connector.connect(**config)
     cursor = connection.cursor()
@@ -46,6 +52,37 @@ def test_table(table_name) -> List[Dict]:
     cursor.close()
     connection.close()
     return results
+
+# SELECT *
+# FROM movies JOIN movie_ratings on movies.movie_id = movie_ratings.movie_id
+# JOIN movie_genre on movies.movie_id = movie_genre.movie_id
+# JOIN genre on movie_genre.genre_id = genre.genre_id
+
+def req1() -> List[Dict]:
+    connection = mysql.connector.connect(**config)
+    cursor = connection.cursor()
+    #query = 'SELECT * FROM movies as m INNERJOIN movie_ratings'
+    query = 'SELECT mr.user_id, m.title, m.release_year, g.genre, mr.rating \
+        FROM movies AS m \
+        INNER JOIN \
+        movie_ratings AS mr \
+        ON m.movie_id = mr.movie_id \
+        INNER JOIN \
+        movie_genre AS mg \
+        ON m.movie_id = mg.movie_id \
+        INNER JOIN \
+        genres AS g \
+        ON mg.genre_id = g.genre_id'
+    cursor.execute(query)
+    results = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return results
+
+@app.route('/q1')
+def q1() -> str:
+    mov_data = req1()
+    return render_template('q1.html', data=mov_data)
 
 @app.route('/movie_genre')
 def movie_genre() -> str:
