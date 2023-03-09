@@ -22,12 +22,6 @@ config = {
         'database': 'movie_db'
     }
 
-# SELECT *
-# FROM movies JOIN movie_ratings on movies.movie_id = movie_ratings.movie_id
-# JOIN movie_genre on movies.movie_id = movie_genre.movie_id
-# JOIN genre on movie_genre.genre_id = genre.genre_id
-
-
 def table_empty(table_name):
     connection = mysql.connector.connect(**config)
     cursor = connection.cursor()
@@ -53,15 +47,9 @@ def test_table(table_name) -> List[Dict]:
     connection.close()
     return results
 
-# SELECT *
-# FROM movies JOIN movie_ratings on movies.movie_id = movie_ratings.movie_id
-# JOIN movie_genre on movies.movie_id = movie_genre.movie_id
-# JOIN genre on movie_genre.genre_id = genre.genre_id
-
 def req1() -> List[Dict]:
     connection = mysql.connector.connect(**config)
     cursor = connection.cursor()
-    #query = 'SELECT * FROM movies as m INNERJOIN movie_ratings'
     query = 'SELECT mr.user_id, m.title, m.release_year, g.genre, mr.rating \
         FROM movies AS m \
         INNER JOIN \
