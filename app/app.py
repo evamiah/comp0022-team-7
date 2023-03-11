@@ -2,7 +2,6 @@ from flask import Flask, render_template, redirect, request
 from typing import List, Dict
 import mysql.connector
 import json
-import init
 import rating
 import movie_details
 import logging
@@ -153,13 +152,19 @@ def q3() -> str:
 
 @app.route('/movies/<int:movie_id>')
 def show_movie(movie_id):
+    info = movie_details.select_movie(movie_id)
     cast = clean_results(movie_details.select_cast(movie_id))
     director = clean_results(movie_details.select_director(movie_id))
-    info = movie_details.select_movie(movie_id)[0]#clean_results([movie_details.select_movie(movie_id)])[0]
+    invalid_request = False
+    if info == movie_details.get_invalid_id():
+        invalid_request = True
+    else:
+        info = info[0]
     data = {
         'info':info,
         'cast':cast,
-        'director':director
+        'director':director,
+        'invalid':invalid_request
     }
     return render_template('movie_details.html', data=data)
 

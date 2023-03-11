@@ -11,6 +11,9 @@ config = {
 
 INVALID_ID = "Movie does not exist in the database."
 
+def get_invalid_id():
+    return INVALID_ID
+
 def select_cast(movie_id):
     connection = mysql.connector.connect(**config)
     cursor = connection.cursor()
