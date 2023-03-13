@@ -1,6 +1,6 @@
 import datetime
 
-def getQuery(query, title, startYear, endYear, rating, genre, andOrOr, sortBy):
+def getQuery(queryPartOne, queryPartTwo, title, startYear, endYear, rating, genre, andOrOr, sortBy):
     if ((startYear != None) and (endYear != None)):
         if (int(startYear) > int(endYear)):
             new_startYear = endYear
@@ -42,6 +42,11 @@ def getQuery(query, title, startYear, endYear, rating, genre, andOrOr, sortBy):
         
     temp = temp[:-5]
 
+    if (sortBy=="popularity"):
+        query = queryPartOne + ", COUNT(mr.user_id) AS popularity" + queryPartTwo
+    else:
+        query = queryPartOne + queryPartTwo
+
     if (((title_genre_check == 1) or (title_genre_check == 3)) and (andOrOr == "and") and (temp != "")):
         query = whereAnd(query)
         query = query + temp
@@ -56,7 +61,7 @@ def getQuery(query, title, startYear, endYear, rating, genre, andOrOr, sortBy):
 
     if(rating_check == 1):
         query = whereAnd(query)
-        query = query +  " mr.rating = " + rating
+        query = query +  " ordered_rating = " + rating
 
     if(year_check == 1):
         query = whereAnd(query)
@@ -81,7 +86,9 @@ def getOrderBy(query,sortBy):
     elif (sortBy=="genre"):
         query = query + " ORDER BY g.genre"
     elif(sortBy=="rating"):
-        query = query + " ORDER BY mr.rating"
+        query = query + " ORDER BY ordered_rating"
+    elif(sortBy=="popularity"):
+        query = query + " ORDER BY COUNT(popularity)"
     if (sortBy[-4:] == "desc"):
         query = query + " DESC"
     return query
@@ -93,6 +100,17 @@ genre = ["Action"]
 rating = "4.5"
 andOrOr = "and"
 sortBy = "title"
-query = "SELECT * FROM ml_movies"
-query = getQuery(query, title, startYear, endYear, rating, genre, andOrOr, sortBy)
+queryPartOne = "SELECT m.title, m.release_year, g.genre, ROUND(AVG(mr.rating),1) AS ordered_rating"
+queryPartTwo = " FROM movies AS m \
+        INNER JOIN \
+        movie_ratings AS mr \
+        ON m.movie_id = mr.movie_id \
+        INNER JOIN \
+        movie_genre AS mg \
+        ON m.movie_id = mg.movie_id \
+        INNER JOIN \
+        genres AS g \
+        ON mg.genre_id = g.genre_id \
+        GROUP BY m.title, m.release_year, g.genre"
+query = getQuery(queryPartOne, queryPartTwo, title, startYear, endYear, rating, genre, andOrOr, sortBy)
 print(query)

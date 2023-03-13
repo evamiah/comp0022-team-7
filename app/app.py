@@ -8,6 +8,7 @@ import tags
 import logging
 import time
 import subprocess
+import init
 
 #docker compose setup from: https://www.devopsroles.com/deploy-flask-mysql-app-with-docker-compose/
 app = Flask(__name__)
@@ -51,7 +52,7 @@ def test_table(table_name) -> List[Dict]:
 def req1() -> List[Dict]:
     connection = mysql.connector.connect(**config)
     cursor = connection.cursor()
-    query = 'SELECT mr.user_id, m.title, m.release_year, g.genre, mr.rating \
+    query = 'SELECT m.title, m.release_year, g.genre, ROUND(AVG(mr.rating),1) AS ordered_rating \
         FROM movies AS m \
         INNER JOIN \
         movie_ratings AS mr \
@@ -61,7 +62,8 @@ def req1() -> List[Dict]:
         ON m.movie_id = mg.movie_id \
         INNER JOIN \
         genres AS g \
-        ON mg.genre_id = g.genre_id'
+        ON mg.genre_id = g.genre_id \
+        GROUP BY m.title, m.release_year, g.genre'
     cursor.execute(query)
     results = cursor.fetchall()
     cursor.close()
