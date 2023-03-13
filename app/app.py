@@ -2,8 +2,8 @@ from flask import Flask, render_template, redirect, request
 from typing import List, Dict
 import mysql.connector
 import json
-import init
 import rating
+import movie_details
 import tags
 import logging
 import time
@@ -67,6 +67,16 @@ def req1() -> List[Dict]:
     cursor.close()
     connection.close()
     return results
+
+def clean_results(data):
+    results = []
+    for i in data:
+        if type(i) is tuple:
+            results.append(i[0])
+        else:
+            results.append(i)
+    return results
+
 
 @app.route('/q1')
 def q1() -> str:
@@ -140,6 +150,24 @@ def q3() -> str:
         test_data.append(rating.analyse_ratings_genre('low', 1, i)[0][0])
         test_data.append(rating.analyse_ratings_genre('high', 1, i)[0][0])
     return render_template('q3.html', data=test_data)
+
+@app.route('/movies/<int:movie_id>')
+def show_movie(movie_id):
+    info = movie_details.select_movie(movie_id)
+    cast = clean_results(movie_details.select_cast(movie_id))
+    director = clean_results(movie_details.select_director(movie_id))
+    invalid_request = False
+    if info == movie_details.get_invalid_id():
+        invalid_request = True
+    else:
+        info = info[0]
+    data = {
+        'info':info,
+        'cast':cast,
+        'director':director,
+        'invalid':invalid_request
+    }
+    return render_template('movie_details.html', data=data)
 
 @app.route('/q4')
 def q4() -> str:

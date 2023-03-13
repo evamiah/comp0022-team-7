@@ -17,6 +17,7 @@ RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted
 COPY app.py /app
 COPY init.py /app
 COPY rating.py /app
+COPY movie_details.py /app
 COPY tags.py /app
 COPY templates /app/templates
 COPY data /app/data

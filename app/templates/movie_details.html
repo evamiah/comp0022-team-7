@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Details</title>
+</head>
+<body>
+    {% if not data['invalid'] %}
+        <h1>{{ (data['info'])[0] }}</h1>
+        <img src="https://image.tmdb.org/t/p/w185/{{ (data['info'])[3] }}">
+        <p> Release year: {{ (data['info'])[1] }}</p>
+        <p>Overview</p>
+        <p>{{ (data['info'])[2] }}</p>
+
+        <p>Directed by</p>
+        {% for i in data['director'] %}
+            <p> {{ i }} </p>
+        {% endfor %}
+
+        <p>Cast</p>
+        {% for i in data['cast'] %}
+            <p>{{ i }} </p>
+        {% endfor %}
+    {% else %}
+        <h1>{{ data['info'] }}</h1>
+    {% endif %}
+
+    
+</body>
