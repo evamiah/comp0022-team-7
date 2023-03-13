@@ -4,6 +4,7 @@ import mysql.connector
 import json
 import init
 import rating
+import tags
 import logging
 import time
 import subprocess
@@ -139,6 +140,15 @@ def q3() -> str:
         test_data.append(rating.analyse_ratings_genre('low', 1, i)[0][0])
         test_data.append(rating.analyse_ratings_genre('high', 1, i)[0][0])
     return render_template('q3.html', data=test_data)
+
+@app.route('/q4')
+def q4() -> str:
+    #test_data = tags.analyse_tag_genre('Action')
+    #test_data = tags.analyse_tag_rating_avg()
+    #test_data = tags.analyse_tag_rating('high')
+    #test_data = tags.analyse_tag_genre_totals()
+    test_data = tags.analyse_tag_rating_totals()
+    return render_template('q4.html', data=test_data)
 
 @app.route('/')
 def index() -> str:
