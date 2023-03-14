@@ -2,6 +2,7 @@ from flask import Flask, render_template, redirect, request
 from typing import List, Dict
 import mysql.connector
 import json
+import req1
 import rating
 import movie_details
 import tags
@@ -49,27 +50,6 @@ def test_table(table_name) -> List[Dict]:
     connection.close()
     return results
 
-def req1() -> List[Dict]:
-    connection = mysql.connector.connect(**config)
-    cursor = connection.cursor()
-    query = 'SELECT m.title, m.release_year, g.genre, ROUND(AVG(mr.rating),1) AS ordered_rating \
-        FROM movies AS m \
-        INNER JOIN \
-        movie_ratings AS mr \
-        ON m.movie_id = mr.movie_id \
-        INNER JOIN \
-        movie_genre AS mg \
-        ON m.movie_id = mg.movie_id \
-        INNER JOIN \
-        genres AS g \
-        ON mg.genre_id = g.genre_id \
-        GROUP BY m.title, m.release_year, g.genre'
-    cursor.execute(query)
-    results = cursor.fetchall()
-    cursor.close()
-    connection.close()
-    return results
-
 def clean_results(data):
     results = []
     for i in data:
@@ -82,7 +62,7 @@ def clean_results(data):
 
 @app.route('/q1')
 def q1() -> str:
-    mov_data = req1()
+    mov_data = req1.getQuery()
     return render_template('q1.html', data=mov_data)
 
 @app.route('/movie_genre')
