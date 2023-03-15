@@ -29,7 +29,7 @@ def select_cast(movie_id):
     cursor.close()
     connection.close()
     if not results:
-        return INVALID_ID
+        return []
     return results
 
 
@@ -48,13 +48,13 @@ def select_director(movie_id):
     cursor.close()
     connection.close()
     if not results:
-        return INVALID_ID
+        return []
     return results
 
 def select_options(title):
     connection = mysql.connector.connect(**config)
     cursor = connection.cursor()
-    query = 'SELECT title, release_year, overview, poster_path \
+    query = 'SELECT movie_id, title, release_year, overview, poster_path \
                 FROM movies \
                 WHERE title LIKE %s'
     cursor.execute(query, ('%' + title + '%',))
@@ -67,7 +67,7 @@ def select_options(title):
 def select_movie(movie_id):
     connection = mysql.connector.connect(**config)
     cursor = connection.cursor()
-    query = 'SELECT title, release_year, overview, poster_path \
+    query = 'SELECT movie_id, title, release_year, overview, poster_path \
                 FROM movies \
                 WHERE movie_id = %s'
     cursor.execute(query, (movie_id,))
@@ -75,7 +75,7 @@ def select_movie(movie_id):
     cursor.close()
     connection.close()
     if not results:
-        return INVALID_ID
+        return []
     return results
 
 

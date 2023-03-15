@@ -2,6 +2,8 @@
 import pandas as pd
 import tmdbsimple as tmdb
 import rottentomatoes as rt
+from rotten_tomatoes_scraper.rt_scraper import MovieScraper
+import requests
 
 from requests.exceptions import HTTPError
 
@@ -10,18 +12,18 @@ tmdb.API_KEY = '1e97e6266061128613ab12764f041937';
 '''
 Sets default values for missing data.
 '''
-NO_TITLE = ''
+NO_DATA = ''
 NO_YEAR = 0
-NO_OVERVIEW = ''
-NO_POSTER = ''
-NO_CAST = ''
-NO_DIRECTOR = ''
+
 
 def info_not_found(movie_id):
-    return [movie_id, NO_OVERVIEW, NO_POSTER]
+    return [movie_id, NO_DATA, NO_DATA]
 
 def credits_not_found(movie_id):
-    return [movie_id, NO_CAST, NO_DIRECTOR]
+    return [movie_id, NO_DATA, NO_DATA]
+
+def rt_not_found(movie_id):
+    return [movie_id, NO_DATA]
 
 
 '''
@@ -65,7 +67,45 @@ Uses TMDb API wrapper library to obtain movie's poster path
 def get_poster_path(info):
     poster = info["poster_path"]
     return poster
+'''
+get_rt_url(movie_id, tmdb_id, title, year) -> String
+Uses rottentomatoes-python library to obtain movie's rotten tomatoes URL
+    - movie_id, tmdb_id, title, year from MovieLens movies and links files
+    - returns rotten tomatoes URL or rt_not_found()
+'''
+def get_rt_url(movie_id, tmdb_id, title, year):
+    result = rt.search.search_results(title)
+    filtered = rt.search.filter_searches(result)
+    if not filtered:
+        #if not found because of badly formatted title, get tmdb title
+        new_title = get_basic_info(tmdb_id, movie_id)[1]
+        result = rt.search.search_results(new_title)
+        filtered = rt.search.filter_searches(result)
+    for link in filtered:
+        if link.has_tomatometer and link.is_movie:
+            try:
+                response =  requests.get(link.url)
+            except HTTPError:
+                return rt_not_found(movie_id)
+            
+            t_title = rt.movie_title(title, response.text)
+            y = rt.year_released(t_title, response.text)
+            if int(y) == year:
+                return [movie_id, link.url]
+    return rt_not_found(movie_id)
 
+
+'''
+get_rt_ratings(rt_url) -> List[String]
+Uses rotten-tomatoes-scraper library to obtain movie's rotten tomatoes scores
+- rt_url: movie's unique rotten tomatoes URL
+'''
+def get_rt_ratings(rt_url):
+    movie_scraper = MovieScraper(movie_url=rt_url)
+    movie_scraper.extract_metadata()
+    tomatometer = movie_scraper.metadata['Score_Rotten']
+    audience = movie_scraper.metadata['Score_Audience']
+    return tomatometer, audience
 
 '''
 get_cast(movie_id) -> List[String] 
@@ -118,6 +158,23 @@ def get_movie_info(tmdb_id, movie_id):
     return [movie_id, overview, poster]
 
 '''
+get_movie_info(tmdb_id, movie_id) -> List[String]
+movie_id: movieID from MovieLens datasets 
+tmdb_id: TMDb ID found in MovieLens' links.csv file
+    - Uses TMDb API wrapper library to obtain movie missing title or year
+    - if movie is not found from TMDb request, returns info_not_found()
+    - returns array with movie_id, title and release
+'''
+def get_basic_info(tmdb_id, movie_id):
+    try:
+        movie_info = tmdb.Movies(tmdb_id).info()
+    except HTTPError:
+        return info_not_found(movie_id)
+    title = get_title(movie_info)
+    year = get_release_year(movie_info)
+    return [movie_id, title, year]
+
+'''
 get_movie_credits(tmdb_id, movie_id) -> List[String]
 movie_id: movieID from MovieLens datasets 
 tmdb_id: TMDb ID found in MovieLens' links.csv file
@@ -142,7 +199,7 @@ left join on file 1.
 '''
 def csv_joiner(file1, file2, value, out):
     df1 = pd.read_csv(file1)
-    df2 = pd.read_csv(file2)
+    df2 = pd.read_csv(file2, dtype={'tmdbId':'str'})
     combo = pd.merge(df1, df2, on=value, how="left")
     combo.to_csv(out, index=False)
 

@@ -11,7 +11,7 @@ def get_people():
         with open('cast_crew.csv', 'a', newline='', encoding="utf-8") as cc_csv:
 
             links_csv_r = csv.reader(links_csv)
-            cc_csv_w = csv.writer(cc_csv)
+            cc_csv_w = csv.writer(cc_csv, delimiter=';')
 
             #NOTE: uncomment if appending rows after interruption, replace range with last line written
             #for i in range(3128):

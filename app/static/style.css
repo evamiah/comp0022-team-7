@@ -1,0 +1,39 @@
+body {
+    background-color: ghostwhite;
+}
+
+.pagination > li > a{
+    background-color: white;
+    color: #8700b1;
+}
+
+.pagination > .active > a{
+    color: white;
+    background-color: #c300ff;
+    border: solid 1px #c300ff;
+}
+
+.card-img-top {
+    object-fit: cover;
+}
+
+.card-body a {
+    color: black;
+    text-decoration: none;
+}
+.card-body a:hover {
+    color: magenta;
+}
+
+.card-body li a {
+    color: black;
+    text-decoration: none;
+}
+
+.card-body li a:hover {
+    color: magenta;
+}
+
+
+
+

@@ -21,6 +21,8 @@ COPY movie_details.py /app
 COPY req1.py /app
 COPY req5.py /app
 COPY tags.py /app
+COPY helpers.py /app
 COPY templates /app/templates
+COPY static /app/static
 COPY data /app/data
 CMD ["flask", "run", "--host", "0.0.0.0"]
