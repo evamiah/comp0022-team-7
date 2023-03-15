@@ -19,6 +19,7 @@ COPY init.py /app
 COPY rating.py /app
 COPY movie_details.py /app
 COPY req1.py /app
+COPY req5.py /app
 COPY tags.py /app
 COPY templates /app/templates
 COPY data /app/data
