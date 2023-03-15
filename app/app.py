@@ -139,7 +139,7 @@ def show_movie(movie_id):
     cast = clean_results(movie_details.select_cast(movie_id))
     director = clean_results(movie_details.select_director(movie_id))
     invalid_request = False
-    if info == movie_details.get_invalid_id():
+    if not info:
         invalid_request = True
     else:
         info = info[0]
