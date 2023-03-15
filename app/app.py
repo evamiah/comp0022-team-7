@@ -3,6 +3,7 @@ from typing import List, Dict
 import mysql.connector
 import json
 import req1
+import req5
 import rating
 import movie_details
 import tags
@@ -62,8 +63,21 @@ def clean_results(data):
 
 @app.route('/q1')
 def q1() -> str:
-    mov_data = req1.getQuery()
+    startYear = None
+    endYear = None
+    rating = None
+    title = None
+    genre = None
+    andOrOr = None
+    sortBy = None
+    mov_data = req1.getQuery(startYear, endYear, rating, title, genre, andOrOr, sortBy)
     return render_template('q1.html', data=mov_data)
+
+@app.route('/q5')
+def q5() -> str:
+    movieId = "1"
+    mov_data = req5.getQry(movieId)
+    return render_template('q5.html', data=mov_data)
 
 @app.route('/movie_genre')
 def movie_genre() -> str:

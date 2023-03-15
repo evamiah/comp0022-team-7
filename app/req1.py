@@ -10,7 +10,7 @@ config = {
         'database': 'movie_db'
     }
 
-def getQuery() -> List[Dict]:
+def getQuery(startYear, endYear, rating, title, genre, andOrOr, sortBy) -> List[Dict]:
     connection = mysql.connector.connect(**config)
     cursor = connection.cursor()
 
@@ -27,13 +27,6 @@ def getQuery() -> List[Dict]:
         ON mg.genre_id = g.genre_id'
     
     queryPartTwo = ' GROUP BY m.title, m.release_year'
-    startYear = None
-    endYear = None
-    rating = None
-    title = None
-    genre = None
-    andOrOr = None
-    sortBy = None
 
     if ((startYear != None) and (endYear != None)):
         if (int(startYear) > int(endYear)):
