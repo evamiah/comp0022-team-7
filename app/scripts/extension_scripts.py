@@ -2,7 +2,6 @@
 import pandas as pd
 import tmdbsimple as tmdb
 import rottentomatoes as rt
-from rotten_tomatoes_scraper.rt_scraper import MovieScraper
 import requests
 
 from requests.exceptions import HTTPError
@@ -67,16 +66,17 @@ Uses TMDb API wrapper library to obtain movie's poster path
 def get_poster_path(info):
     poster = info["poster_path"]
     return poster
+
 '''
-get_rt_url(movie_id, tmdb_id, title, year) -> String
-Uses rottentomatoes-python library to obtain movie's rotten tomatoes URL
+get_rt_ratings(movie_id, tmdb_id, title, year) -> String
+Uses rottentomatoes-python library to obtain movie's rotten tomatoes scores
     - movie_id, tmdb_id, title, year from MovieLens movies and links files
-    - returns rotten tomatoes URL or rt_not_found()
+    - returns tomatometer and audience scores or NO_DATA
 '''
-def get_rt_url(movie_id, tmdb_id, title, year):
+def get_rt_ratings(movie_id, tmdb_id, title, year):
     result = rt.search.search_results(title)
     filtered = rt.search.filter_searches(result)
-    if not filtered:
+    if not filtered and tmdb_id:
         #if not found because of badly formatted title, get tmdb title
         new_title = get_basic_info(tmdb_id, movie_id)[1]
         result = rt.search.search_results(new_title)
@@ -86,26 +86,15 @@ def get_rt_url(movie_id, tmdb_id, title, year):
             try:
                 response =  requests.get(link.url)
             except HTTPError:
-                return rt_not_found(movie_id)
+                return NO_DATA
             
             t_title = rt.movie_title(title, response.text)
             y = rt.year_released(t_title, response.text)
-            if int(y) == year:
-                return [movie_id, link.url]
-    return rt_not_found(movie_id)
-
-
-'''
-get_rt_ratings(rt_url) -> List[String]
-Uses rotten-tomatoes-scraper library to obtain movie's rotten tomatoes scores
-- rt_url: movie's unique rotten tomatoes URL
-'''
-def get_rt_ratings(rt_url):
-    movie_scraper = MovieScraper(movie_url=rt_url)
-    movie_scraper.extract_metadata()
-    tomatometer = movie_scraper.metadata['Score_Rotten']
-    audience = movie_scraper.metadata['Score_Audience']
-    return tomatometer, audience
+            t_score = rt.tomatometer(t_title, response.text)["value"]
+            a_score = rt.audience_score(t_title, response.text)["value"]
+            if y == str(year):
+                return [t_score, a_score]
+    return NO_DATA
 
 '''
 get_cast(movie_id) -> List[String] 

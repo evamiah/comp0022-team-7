@@ -23,7 +23,7 @@
                         <div class="card h-100">
                                 <div class="card-body p-5">
                                     <h2 class="card-title">{{ movie['title'] }} ({{ movie['year'] }})</h2>
-                                        <p>Directed by: 
+                                        <p class="card-text">Directed by: 
                                         {% for name in movie['director'] %}
                                             {% if ((movie['director']).index(name)) > 0 %}
                                             , {{ name }} 
@@ -31,7 +31,15 @@
                                             {{ name }}
                                             {% endif %}
                                         {% endfor %}</p>
-
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <p class="fw-bold">Tomatometer: {{ movie['tomatometer'] }}</p>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <p class="fw-bold">Audience Score: {{ movie['audience_score'] }}</p>
+                                            </div>
+                                        </div>
+                                        
                                         <p class="card-text">{{ movie['overview'] }}</p>
 
                                     <h4>Lead Cast</h4>
