@@ -10,11 +10,13 @@ config = {
         'database': 'movie_db'
     }
 
-def getQuery(startYear, endYear, rating, title, genre, andOrOr, sortBy) -> List[Dict]:
+def getQuery(startYear, endYear, sortBy, order, genre_list) -> List[Dict]:
     connection = mysql.connector.connect(**config)
     cursor = connection.cursor()
+    
 
-    queryPartOne = 'SELECT m.title, m.release_year, GROUP_CONCAT(DISTINCT g.genre ORDER BY g.genre ASC), ROUND(AVG(mr.rating),1) AS ordered_rating \
+    # queryPartOne = 'SELECT m.title, m.release_year, GROUP_CONCAT(DISTINCT g.genre ORDER BY g.genre ASC) AS genre_list, ROUND(AVG(mr.rating),1) AS ordered_rating \
+    queryPartOne = 'SELECT m.movie_id, m.title, m.release_year, m.overview, m.poster_path, GROUP_CONCAT(DISTINCT g.genre ORDER BY g.genre ASC) AS genre_list, ROUND(AVG(mr.rating),1) AS ordered_rating \
         FROM movies AS m \
         INNER JOIN \
         movie_ratings AS mr \
@@ -26,62 +28,85 @@ def getQuery(startYear, endYear, rating, title, genre, andOrOr, sortBy) -> List[
         genres AS g \
         ON mg.genre_id = g.genre_id'
     
-    queryPartTwo = ' GROUP BY m.title, m.release_year'
+    queryPartTwo = ' GROUP BY m.movie_id'
 
-    if ((startYear != None) and (endYear != None)):
-        if (int(startYear) > int(endYear)):
-            new_startYear = endYear
-            endYear = startYear
-            startYear = new_startYear
-        else:
-            startYear = startYear
-            endYear = endYear
-        year_check = 1
-    elif ((startYear == None) and (endYear != None)):
-        startYear = 1900
-        year_check = 1
+    if ((not startYear) and (not endYear)):
+        year_check = 0
     elif ((startYear != None) and (endYear == None)):
         today = datetime.date.today()
         endYear = today.year
         year_check = 1
-    elif ((startYear == None) and (endYear == None)):
-        year_check = 0
-
-    if (rating == None):
-        rating_check = 0
+    elif ((startYear == None) and (endYear != None)):
+        startYear = 1900
+        year_check = 1
     else:
-        rating_check = 1
+        year_check = 1
 
-    if ((title == None) and (genre == None)):
-        title_genre_check = 0
-    elif ((title == None) and (genre != None)):
-        genre_types = ','.join(genre)
-        title_genre_check = 1
-    elif ((title != None) and (genre == None)):
-        title_genre_check = 2
-    elif ((title != None) and (genre != None)):
-        genre_types = ','.join(genre)
-        title_genre_check = 3
+    # if ((startYear != None) and (endYear != None)):
+    #     if (int(startYear) > int(endYear)):
+    #         new_startYear = endYear
+    #         endYear = startYear
+    #         startYear = new_startYear
+    #     else:
+    #         startYear = startYear
+    #         endYear = endYear
+    #     year_check = 1
+    # elif ((startYear == None) and (endYear != None)):
+    #     startYear = 1900
+    #     year_check = 1
+    # elif ((startYear != None) and (endYear == None)):
+    #     today = datetime.date.today()
+    #     endYear = today.year
+    #     year_check = 1
+    # elif ((startYear == None) and (endYear == None)):
+    #     year_check = 0
+
+    # if (rating == None):
+    #     rating_check = 0
+    # else:
+    #     rating_check = 1
+
+    if (genre_list == []):
+        genre_check = 0
+    else:
+        # genre_types = ','.join(genre)
+        genre_check = 1
+
+    # if ((title == None) and (genre == None)):
+    #     title_genre_check = 0
+    # elif ((title == None) and (genre != None)):
+    #     genre_types = ','.join(genre)
+    #     title_genre_check = 1
+    # elif ((title != None) and (genre == None)):
+    #     title_genre_check = 2
+    # elif ((title != None) and (genre != None)):
+    #     genre_types = ','.join(genre)
+    #     title_genre_check = 3
 
     query = queryPartOne
 
-    if (((title_genre_check == 1) or (title_genre_check == 3)) and (andOrOr == "and") and (andList != "")):
+    if (genre_check == 1):
         query = whereAnd(query)
-        andList = getGenreList(genre_types, "and")
-        query = query + " genre_list IN" + andList
+        andList = getGenreList(genre_list, "and")
+        query = query + " g.genre IN" + andList
 
-    if (((title_genre_check == 1) or (title_genre_check == 3)) and (andOrOr == "or")):
-        query = whereAnd(query)
-        orList = getGenreList(genre_types, "or")
-        query = query + orList
+    # if (((title_genre_check == 1) or (title_genre_check == 3)) and (andOrOr == "and") and (andList != "")):
+    #     query = whereAnd(query)
+    #     andList = getGenreList(genre_types, "and")
+    #     query = query + " genre_list IN" + andList
 
-    if ((title_genre_check == 2) or (title_genre_check == 3)):
-        query = whereAnd(query)
-        query = query + " m.title LIKE '%" + title + "%'"
+    # if (((title_genre_check == 1) or (title_genre_check == 3)) and (andOrOr == "or")):
+    #     query = whereAnd(query)
+    #     orList = getGenreList(genre_types, "or")
+    #     query = query + orList
 
-    if(rating_check == 1):
-        query = whereAnd(query)
-        query = query +  " ordered_rating = " + rating
+    # if ((title_genre_check == 2) or (title_genre_check == 3)):
+    #     query = whereAnd(query)
+    #     query = query + " m.title LIKE '%" + title + "%'"
+
+    # if(rating_check == 1):
+    #     query = whereAnd(query)
+    #     query = query +  " ordered_rating = " + rating
 
     if(year_check == 1):
         query = whereAnd(query)
@@ -90,7 +115,7 @@ def getQuery(startYear, endYear, rating, title, genre, andOrOr, sortBy) -> List[
     query = query + queryPartTwo
 
     if (sortBy != None):
-        query = getOrderBy(query,sortBy)
+        query = getOrderBy(query,sortBy,order)
 
     cursor.execute(query)
     results = cursor.fetchall()
@@ -118,17 +143,17 @@ def getGenreList(genre_types, connector):
     string = string + ")"
     return string
 
-def getOrderBy(query,sortBy):
-    if (sortBy=="title"):
+def getOrderBy(query,sortBy,order):
+    if (sortBy=="Title"):
         query = query + " ORDER BY m.title"
-    elif (sortBy=="year"):
+    elif (sortBy=="Release Year"):
         query = query + " ORDER BY m.release_year"
-    elif (sortBy=="genre"):
+    elif (sortBy=="Genre"):
         query = query + " ORDER BY genre_list"
-    elif(sortBy=="rating"):
+    elif(sortBy=="Rating"):
         query = query + " ORDER BY ordered_rating"
-    elif(sortBy=="popularity"):
+    elif(sortBy=="Popularity"):
         query = query + " ORDER BY COUNT(mr.user_id)"
-    if (sortBy[-4:] == "desc"):
+    if (order == "desc"):
         query = query + " DESC"
     return query

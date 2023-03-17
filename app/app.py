@@ -85,6 +85,16 @@ def clean_results(data):
             results.append(i)
     return results
 
+def aggRating(movie_id):
+    connection = mysql.connector.connect(**config)
+    cursor = connection.cursor()
+    query = 'SELECT ROUND(AVG(mr.rating),1) FROM movie_ratings AS mr WHERE mr.movie_id = ' + str(movie_id) + ' GROUP BY mr.movie_id'
+    cursor.execute(query)
+    results = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return results
+
 
 @app.route('/q1')
 def q1() -> str:
@@ -206,7 +216,7 @@ def search_title():
         if results:
             for info in results:
                 m = MovieViewer(info)
-                search_results.append(m.get_viewing_data())
+                search_results.append((m.get_viewing_data(), aggRating(m.get_movie_id())))
         else:
             found = False
         return render_template('search.html', searched=form_data['search_title'], data=search_results, found=found)
@@ -217,7 +227,22 @@ def filter_movies():
         return redirect('/')
     if request.method == 'POST':
         form_data = request.form
-        return render_template('filters.html', data = form_data)
+        genre_list = []
+        for genre in GENRES:
+            val = request.form.get(genre[1])
+            if val:
+                genre_list.append(genre[1])
+        results = req1.getQuery(form_data['start_year'], form_data['end_year'], form_data['sort_by'], form_data['order'], genre_list)
+        filter_results = []
+        found = True
+        if results:
+            for info in results:
+                m = MovieViewer(info)
+                filter_results.append((m.get_viewing_data(), aggRating(m.get_movie_id())))
+        else:
+            found = False
+        return render_template('search.html', data=filter_results, found=found)
+        # return render_template('filter.html', data=results)
 
 @app.route('/')
 def index() -> str:
@@ -238,7 +263,7 @@ def index() -> str:
     page_data = movie_data[offset:end]
     for i in page_data:
         m = MovieViewer(i, [], [])
-        data.append(m.get_viewing_data())
+        data.append((m.get_viewing_data(), aggRating(m.get_movie_id())))
     pagination = Pagination(page=page, total=len(movie_data), per_page=MOVIES_PER_PAGE, search=search, record_name='movies')
     return render_template("home.html", data=data, genres=GENRES, filters=FILTERS, pagination=pagination)
 

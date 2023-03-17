@@ -13,11 +13,17 @@
                             <div class="card-body">
                                 <h1>Search results for: {{ searched }}</h1>
                                 {% if found %}
-                                <ul class="card-list">
                                     {% for movie in data %}
-                                        <li><a href="movies/{{ movie['id'] }}"> {{ movie['title'] }} ({{ movie['year'] }})</li>
+                                    <div class="col-md-4">
+                                        <div class="card h-100" style="width: 12rem">
+                                        <img src="{{ movie[0]['poster'] }}" class="card-img-top" alt="...">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><a href="movies/{{ movie[0]['id'] }}">{{ movie[0]['title'] }} ({{ movie[0]['year'] }})</a></h5>
+                                            <p class="card-text">Avg User Rating: {{ movie[1] }}</p>
+                                        </div>
+                                        </div>
+                                    </div>
                                     {% endfor %}
-                                </ul>
                                 {% else %}
                                     <h2>No results found.</h2>
                                 {% endif %} 

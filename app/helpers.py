@@ -1,3 +1,4 @@
+import req5
 
 NO_POSTER_FILE = "/static/poster_unavailable.jpg"
 NO_OVERVIEW_TEXT = "This movie's overview is currently unavailable."
@@ -45,6 +46,9 @@ class MovieViewer:
         else:
             return self.director
     
+    def get_predicted_rating(self):
+        return req5.getQry(self.info[0])
+    
     def get_viewing_data(self):
         data = {}
         data['invalid'] = self.invalid
@@ -56,6 +60,7 @@ class MovieViewer:
             data['poster'] = self.get_poster()
             data['cast'] = self.get_cast()
             data['director'] = self.get_director()
+            data['predictedRating'] = self.get_predicted_rating()
         else:
             data['info'] = INVALID_ID
         return data
