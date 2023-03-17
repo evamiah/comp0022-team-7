@@ -4,4 +4,4 @@ flask-paginate
 pandas
 tmdbsimple
 rottentomatoes-python
-rotten_tomatoes_scraper
+

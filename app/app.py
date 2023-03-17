@@ -1,4 +1,5 @@
 from tkinter import E
+from turtle import rt
 from flask import Flask, render_template, redirect, request
 from typing import List, Dict
 import mysql.connector
@@ -85,6 +86,14 @@ def clean_results(data):
             results.append(i)
     return results
 
+# returns rotten tomatoes ratings after checking they have been inserted in the db
+def check_rt(movie_id, info):
+    rt_ratings = movie_details.select_rt_rating(movie_id)
+    if not rt_ratings and (info):
+        movie_details.insert_rt_rating(movie_id, info[1], info[2])
+        rt_ratings = movie_details.select_rt_rating(movie_id)
+    return rt_ratings
+    
 def aggRating(movie_id):
     connection = mysql.connector.connect(**config)
     cursor = connection.cursor()
@@ -214,10 +223,18 @@ def show_movie(movie_id):
     invalid_request = False
     if not info:
         invalid_request = True
+        rt_ratings = []
     else:
         info = info[0]
-    movie = MovieViewer(info, cast, director, invalid_request)
+        rt_ratings = check_rt(movie_id, info)
+    movie = MovieViewer(info, rt_ratings, cast, director, invalid_request)
     return render_template('movie_details.html', movie=movie.get_viewing_data())
+
+@app.route('/rt')
+def show_all_rating():
+    movie_data = test_table('rt_ratings')
+    return render_template('test/all_rt.html', data=movie_data)
+
 
 @app.route('/q4')
 def q4() -> str:

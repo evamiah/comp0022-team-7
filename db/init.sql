@@ -36,6 +36,14 @@ CREATE TABLE movie_ratings (
     FOREIGN KEY (movie_id) REFERENCES movies(movie_id)
     );
 
+CREATE TABLE rt_ratings (
+    movie_id INT,
+    tomatometer INT,
+    audience_score INT,
+    PRIMARY KEY (movie_id, tomatometer, audience_score),
+    FOREIGN KEY (movie_id) REFERENCES movies(movie_id)
+);
+
 CREATE TABLE movie_links (
     movie_id INT,
     imdb_id VARCHAR(20) UNIQUE,

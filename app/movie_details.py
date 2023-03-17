@@ -1,5 +1,6 @@
 from typing import List, Dict
 import mysql.connector
+from extension_scripts import get_rt_ratings
 
 config = {
         'user': 'root',
@@ -78,5 +79,47 @@ def select_movie(movie_id):
         return []
     return results
 
+def select_rt_rating(movie_id):
+    connection = mysql.connector.connect(**config)
+    cursor = connection.cursor()
+    query = 'SELECT tomatometer, audience_score \
+                FROM rt_ratings \
+                WHERE movie_id = %s'
+    cursor.execute(query, (movie_id,))
+    results = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    if not results:
+        return []
+    return results
+
+def get_tmdb_id(movie_id):
+    connection = mysql.connector.connect(**config)
+    cursor = connection.cursor()
+
+    query = 'SELECT tmdb_id\
+                FROM movie_links \
+                WHERE movie_id = %s'
+    cursor.execute(query, (movie_id,))
+    results = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    return results
+
+def insert_rt_rating(movie_id, title, year):
+    connection = mysql.connector.connect(**config)
+    cursor = connection.cursor()
+    tmdb_id = get_tmdb_id(movie_id)[0]
+    ratings = get_rt_ratings(movie_id, tmdb_id, title, year)
+    if ratings:
+        tomatometer = int(ratings[0])
+        audience_score = int(ratings[1])
+    else:
+        tomatometer = -1
+        audience_score = -1
+    cursor.execute('INSERT INTO rt_ratings (movie_id, tomatometer, audience_score) VALUES (%s, %s, %s);', (movie_id, tomatometer, audience_score))
+    connection.commit()
+    cursor.close()
+    connection.close()
 
 

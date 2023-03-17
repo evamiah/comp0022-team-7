@@ -22,6 +22,7 @@ COPY req1.py /app
 COPY req5.py /app
 COPY tags.py /app
 COPY helpers.py /app
+COPY scripts/extension_scripts.py /app
 COPY templates /app/templates
 COPY static /app/static
 COPY data /app/data
