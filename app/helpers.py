@@ -1,4 +1,5 @@
 import req5
+import app
 
 NO_POSTER_FILE = "/static/poster_unavailable.jpg"
 NO_OVERVIEW_TEXT = "This movie's overview is currently unavailable."
@@ -49,6 +50,15 @@ class MovieViewer:
     def get_predicted_rating(self):
         return req5.getQry(self.info[0])
     
+    def get_rating(self):
+        return app.aggRating(self.info[0])
+    
+    def get_genre(self):
+        return app.getGenres(self.info[0])
+    
+    def get_popularity(self):
+        return app.getPopularity(self.info[0])
+    
     def get_viewing_data(self):
         data = {}
         data['invalid'] = self.invalid
@@ -60,7 +70,13 @@ class MovieViewer:
             data['poster'] = self.get_poster()
             data['cast'] = self.get_cast()
             data['director'] = self.get_director()
-            data['predictedRating'] = self.get_predicted_rating()
+            pred = self.get_predicted_rating()
+            if not pred:
+                pred = '-'
+            data['predictedRating'] = pred
+            data['rating'] = self.get_rating()
+            data['genre'] = self.get_genre()
+            data['popularity'] = self.get_popularity()
         else:
             data['info'] = INVALID_ID
         return data

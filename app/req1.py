@@ -10,7 +10,7 @@ config = {
         'database': 'movie_db'
     }
 
-def getQuery(startYear, endYear, sortBy, order, genre_list) -> List[Dict]:
+def getQuery(startYear, endYear, sortBy, order, genre_list, rating) -> List[Dict]:
     connection = mysql.connector.connect(**config)
     cursor = connection.cursor()
     
@@ -61,10 +61,10 @@ def getQuery(startYear, endYear, sortBy, order, genre_list) -> List[Dict]:
     # elif ((startYear == None) and (endYear == None)):
     #     year_check = 0
 
-    # if (rating == None):
-    #     rating_check = 0
-    # else:
-    #     rating_check = 1
+    if (rating == "all"):
+        rating_check = 0
+    else:
+        rating_check = 1
 
     if (genre_list == []):
         genre_check = 0
@@ -104,15 +104,15 @@ def getQuery(startYear, endYear, sortBy, order, genre_list) -> List[Dict]:
     #     query = whereAnd(query)
     #     query = query + " m.title LIKE '%" + title + "%'"
 
-    # if(rating_check == 1):
-    #     query = whereAnd(query)
-    #     query = query +  " ordered_rating = " + rating
-
     if(year_check == 1):
         query = whereAnd(query)
         query = query + " m.release_year BETWEEN " + startYear + " AND " + endYear
 
     query = query + queryPartTwo
+
+    if(rating_check == 1):
+        orderedRate = getRatingQuery(rating)
+        query = query +  " HAVING ordered_rating" + orderedRate
 
     if (sortBy != None):
         query = getOrderBy(query,sortBy,order)
@@ -157,3 +157,17 @@ def getOrderBy(query,sortBy,order):
     if (order == "desc"):
         query = query + " DESC"
     return query
+
+def getRatingQuery(rating):
+    q = ""
+    if (rating == "rating1"):
+        q = " >= 1"
+    if (rating == "rating2"):
+        q = " >= 2"
+    if (rating == "rating3"):
+        q = " >= 3"
+    if (rating == "rating4"):
+        q = " >= 4"
+    if (rating == "rating5"):
+        q = " = 5"
+    return q

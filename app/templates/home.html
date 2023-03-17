@@ -73,7 +73,7 @@
                                             <label for="order">Order</label>
                                             <select class="form-control" id="order" name="order">
                                                 <option value="asc">Ascending</option>
-                                                <option value="desc" selected>Descending</option>                                            
+                                                <option value="desc">Descending</option>                                            
                                             </select>
                                         </div>
                                     </div> <!-- card-body.// -->
@@ -93,6 +93,26 @@
                                         </div> <!-- form-check.// -->
                         
                                         {% endfor %}
+                                    </div> <!-- card-body.// -->
+                                </div>
+                            </article> <!-- card-group-item.// -->
+                            <article class="card-group-item">
+                                <header class="card-header">
+                                    <h6 class="title">Rating</h6>
+                                </header>
+                                <div class="filter-content">
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label for="rating">Show ratings of</label>
+                                            <select class="form-control" id="rating" name="rating">
+                                                <option value="all">all</option>
+                                                <option value="rating1">1 and above</option>
+                                                <option value="rating2">2 and above</option>
+                                                <option value="rating3">3 and above</option>
+                                                <option value="rating4">4 and above</option>
+                                                <option value="rating5">5</option>
+                                            </select>
+                                        </div>
                                     </div> <!-- card-body.// -->
                                 </div>
                             </article> <!-- card-group-item.// -->

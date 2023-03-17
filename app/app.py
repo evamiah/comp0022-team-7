@@ -95,6 +95,30 @@ def aggRating(movie_id):
     connection.close()
     return results
 
+def getGenres(movie_id):
+    connection = mysql.connector.connect(**config)
+    cursor = connection.cursor()
+    query = 'SELECT GROUP_CONCAT(DISTINCT g.genre ORDER BY g.genre ASC) AS genre_list\
+        FROM movie_genre AS mg \
+        INNER JOIN \
+        genres AS g \
+        ON mg.genre_id = g.genre_id \
+        WHERE mg.movie_id = ' + str(movie_id) + ' GROUP BY mg.movie_id'
+    cursor.execute(query)
+    results = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return results
+
+def getPopularity(movie_id):
+    connection = mysql.connector.connect(**config)
+    cursor = connection.cursor()
+    query = 'SELECT COUNT(mr.user_id) FROM movie_ratings AS mr WHERE mr.movie_id = ' + str(movie_id) + ' GROUP BY mr.movie_id'
+    cursor.execute(query)
+    results = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return results
 
 @app.route('/q1')
 def q1() -> str:
@@ -232,16 +256,27 @@ def filter_movies():
             val = request.form.get(genre[1])
             if val:
                 genre_list.append(genre[1])
-        results = req1.getQuery(form_data['start_year'], form_data['end_year'], form_data['sort_by'], form_data['order'], genre_list)
+        results = req1.getQuery(form_data['start_year'], form_data['end_year'], form_data['sort_by'], form_data['order'], genre_list, form_data['rating'])
         filter_results = []
         found = True
         if results:
             for info in results:
                 m = MovieViewer(info)
-                filter_results.append((m.get_viewing_data(), aggRating(m.get_movie_id())))
+                filter_results.append(m.get_viewing_data())
         else:
             found = False
-        return render_template('search.html', data=filter_results, found=found)
+        sortBy = [form_data['sort_by']]
+        if (form_data['sort_by'] == "Release Year"):
+            sortBy.append('year')
+        elif (form_data['sort_by'] == "Title"):
+            sortBy.append('title')
+        elif (form_data['sort_by'] == "Genre"):
+            sortBy.append('genre')
+        elif (form_data['sort_by'] == "Rating"):
+            sortBy.append('rating')
+        else:
+            sortBy.append('popularity')
+        return render_template('filter.html', data=filter_results, sortBy=sortBy, found=found)
         # return render_template('filter.html', data=results)
 
 @app.route('/')

@@ -16,10 +16,10 @@
                                     {% for movie in data %}
                                     <div class="col-md-4">
                                         <div class="card h-100" style="width: 12rem">
-                                        <img src="{{ movie[0]['poster'] }}" class="card-img-top" alt="...">
+                                        <img src="{{ movie['poster'] }}" class="card-img-top" alt="...">
                                         <div class="card-body">
-                                            <h5 class="card-title"><a href="movies/{{ movie[0]['id'] }}">{{ movie[0]['title'] }} ({{ movie[0]['year'] }})</a></h5>
-                                            <p class="card-text">Avg User Rating: {{ movie[1] }}</p>
+                                            <h5 class="card-title"><a href="movies/{{ movie['id'] }}">{{ movie['title'] }} ({{ movie['year'] }})</a></h5>
+                                            <p class="card-text">{{ sortBy[0] }}: {{ movie[sortBy[1]] }}</p>
                                         </div>
                                         </div>
                                     </div>
