@@ -39,7 +39,7 @@ def analyse_ratings(value, movie_id) -> List[Dict]:
             ) \
             AND movie_id = %s'
     cursor.execute(query, (movie_id,))
-    results = cursor.fetchall()
+    results = cursor.fetchone()
     cursor.close()
     connection.close()
     return results
@@ -80,7 +80,7 @@ def analyse_ratings_genre(value, movie_id, genre_id) -> List[Dict]:
             ) \
             AND movie_id = %s'
     cursor.execute(query, (genre_id, movie_id,))
-    results = cursor.fetchall()
+    results = cursor.fetchone()
     cursor.close()
     connection.close()
     return results

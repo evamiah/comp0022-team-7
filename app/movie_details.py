@@ -10,11 +10,6 @@ config = {
         'database': 'movie_db'
     }
 
-INVALID_ID = "Movie does not exist in the database."
-
-def get_invalid_id():
-    return INVALID_ID
-
 def select_cast(movie_id):
     connection = mysql.connector.connect(**config)
     cursor = connection.cursor()
@@ -32,7 +27,6 @@ def select_cast(movie_id):
     if not results:
         return []
     return results
-
 
 def select_director(movie_id):
     connection = mysql.connector.connect(**config)
@@ -52,6 +46,7 @@ def select_director(movie_id):
         return []
     return results
 
+# returns movies with title similar to searched title
 def select_options(title):
     connection = mysql.connector.connect(**config)
     cursor = connection.cursor()
@@ -122,4 +117,58 @@ def insert_rt_rating(movie_id, title, year):
     cursor.close()
     connection.close()
 
+# select a movie's average user rating rounded to 1dp
+def aggregate_rating(movie_id):
+    connection = mysql.connector.connect(**config)
+    cursor = connection.cursor()
+    query = 'SELECT ROUND(AVG(mr.rating),1) FROM movie_ratings AS mr WHERE mr.movie_id = %s GROUP BY mr.movie_id'
+    cursor.execute(query, (movie_id,))
+    results = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    return results
 
+def get_genres(movie_id):
+    connection = mysql.connector.connect(**config)
+    cursor = connection.cursor()
+    query = 'SELECT g.genre_id, g.genre \
+                FROM genres AS g \
+                INNER JOIN movie_genre AS mg \
+                ON mg.genre_id = g.genre_id \
+                INNER JOIN movies \
+                ON mg.movie_id = movies.movie_id \
+                WHERE movies.movie_id = %s'
+    cursor.execute(query, (movie_id,))
+    results = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    if not results:
+        return []
+    return results
+
+# get genres listed in a single string
+def list_genres(movie_id):
+    connection = mysql.connector.connect(**config)
+    cursor = connection.cursor()
+    query = 'SELECT GROUP_CONCAT(DISTINCT g.genre ORDER BY g.genre ASC) AS genre_list\
+        FROM movie_genre AS mg \
+        INNER JOIN \
+        genres AS g \
+        ON mg.genre_id = g.genre_id \
+        WHERE mg.movie_id = ' + str(movie_id) + ' GROUP BY mg.movie_id'
+    cursor.execute(query)
+    results = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    return results
+
+# popularity measured by the number of votes received
+def get_popularity(movie_id):
+    connection = mysql.connector.connect(**config)
+    cursor = connection.cursor()
+    query = 'SELECT COUNT(mr.user_id) FROM movie_ratings AS mr WHERE mr.movie_id = %s GROUP BY mr.movie_id'
+    cursor.execute(query, (movie_id,))
+    results = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    return results

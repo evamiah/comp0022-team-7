@@ -1,17 +1,13 @@
-from tkinter import E
-from turtle import rt
 from flask import Flask, render_template, redirect, request
 from typing import List, Dict
 import mysql.connector
 import req1
-import req5
-import rating
 import movie_details
 import tags
 import logging
 import time
 import init
-from helpers import MovieViewer
+from helpers import MovieViewer, StatsViewer
 from flask_paginate import Pagination, get_page_parameter
 
 #docker compose setup from: https://www.devopsroles.com/deploy-flask-mysql-app-with-docker-compose/
@@ -29,7 +25,9 @@ config = {
     }
 
 MOVIES_PER_PAGE = 90
+FILTERS = ["Release Year", "Title",  "Genre", "Rating", "Popularity"]
 
+#TODO: get and all genre list with a query
 GENRES = [(1, 'Action'),
 (2, 'Adventure'),
 (3, 'Animation'),
@@ -50,7 +48,7 @@ GENRES = [(1, 'Action'),
 (18, 'Western'),
 (19, 'IMAX')]
 
-FILTERS = ["Release Year", "Title",  "Genre", "Rating", "Popularity"]
+
 
 def table_empty(table_name):
     connection = mysql.connector.connect(**config)
@@ -77,6 +75,16 @@ def test_table(table_name) -> List[Dict]:
     connection.close()
     return results
 
+# get start/end limits of data to show depending on page number 
+def get_page_limits(page, movie_data):
+    offset = (page - 1) * MOVIES_PER_PAGE
+    if (len(movie_data) - offset) > MOVIES_PER_PAGE:
+        end = offset + MOVIES_PER_PAGE
+    else:
+        end = offset + (len(movie_data) % MOVIES_PER_PAGE)
+    return offset, end
+
+# makes an array from tuples returned from queries
 def clean_results(data):
     results = []
     for i in data:
@@ -86,7 +94,7 @@ def clean_results(data):
             results.append(i)
     return results
 
-# returns rotten tomatoes ratings after checking they have been inserted in the db
+# returns rotten tomatoes ratings after checking they exist in the db yet
 def check_rt(movie_id, info):
     rt_ratings = movie_details.select_rt_rating(movie_id)
     if not rt_ratings and (info):
@@ -94,126 +102,20 @@ def check_rt(movie_id, info):
         rt_ratings = movie_details.select_rt_rating(movie_id)
     return rt_ratings
     
-def aggRating(movie_id):
-    connection = mysql.connector.connect(**config)
-    cursor = connection.cursor()
-    query = 'SELECT ROUND(AVG(mr.rating),1) FROM movie_ratings AS mr WHERE mr.movie_id = ' + str(movie_id) + ' GROUP BY mr.movie_id'
-    cursor.execute(query)
-    results = cursor.fetchall()
-    cursor.close()
-    connection.close()
-    return results
 
-def getGenres(movie_id):
-    connection = mysql.connector.connect(**config)
-    cursor = connection.cursor()
-    query = 'SELECT GROUP_CONCAT(DISTINCT g.genre ORDER BY g.genre ASC) AS genre_list\
-        FROM movie_genre AS mg \
-        INNER JOIN \
-        genres AS g \
-        ON mg.genre_id = g.genre_id \
-        WHERE mg.movie_id = ' + str(movie_id) + ' GROUP BY mg.movie_id'
-    cursor.execute(query)
-    results = cursor.fetchall()
-    cursor.close()
-    connection.close()
-    return results
-
-def getPopularity(movie_id):
-    connection = mysql.connector.connect(**config)
-    cursor = connection.cursor()
-    query = 'SELECT COUNT(mr.user_id) FROM movie_ratings AS mr WHERE mr.movie_id = ' + str(movie_id) + ' GROUP BY mr.movie_id'
-    cursor.execute(query)
-    results = cursor.fetchall()
-    cursor.close()
-    connection.close()
-    return results
-
-@app.route('/q1')
-def q1() -> str:
-    startYear = None
-    endYear = None
-    rating = None
-    title = None
-    genre = None
-    andOrOr = None
-    sortBy = None
-    mov_data = req1.getQuery(startYear, endYear, rating, title, genre, andOrOr, sortBy)
-    return render_template('q1.html', data=mov_data)
-
-@app.route('/q5')
-def q5() -> str:
-    movieId = "1"
-    mov_data = req5.getQry(movieId)
-    return render_template('q5.html', data=mov_data)
-
-@app.route('/movie_genre')
-def movie_genre() -> str:
-    if table_empty('movie_genre'):
-        init.load_movie_genre()
-    mg_data = test_table('movie_genre')
-    return render_template('test/movie_genre.html', data=mg_data)
-
-@app.route('/movie_ratings')
-def movie_ratings() -> str:
-    if table_empty('movie_ratings'):
-        init.load_movie_ratings()
-    #mr_data = test_table('movie_ratings')
-    mr_data = rating.analyse_ratings_genre('low', 1, 4)
-    return render_template('test/movie_ratings.html', data=mr_data)
-
-@app.route('/movie_links')
-def movie_links() -> str:
-    if table_empty('movie_links'):
-        init.load_movie_links()
-    ml_data = test_table('movie_links')
-    return render_template('test/movie_links.html', data=ml_data)
-
-@app.route('/movie_tags')
-def movie_tags() -> str:
-    if table_empty('movie_tags'):
-        init.load_movie_tags()
-    mt_data = test_table('movie_tags')
-    return render_template('test/movie_tags.html', data=mt_data)
-
-@app.route('/movies')
-def movies() -> str:
-    if table_empty('movies'):
-        init.load_movies()
-    movie_data = test_table('movies')
-    return render_template('test/movies.html', data=movie_data)
-
-@app.route('/people')
-def people() -> str:
-    if table_empty('people'):
-        #init.load_empty_credit()
-        init.load_people()
-    movie_data = test_table('people')
-    return render_template('test/people.html', data=movie_data)
-
-@app.route('/cast')
-def movie_cast() -> str:
-    if table_empty('movie_cast'):
-        init.load_cast()
-    movie_data = test_table('movie_cast')
-    return render_template('test/movie_cast.html', data=movie_data)
-
-@app.route('/directing')
-def movie_directing() -> str:
-    if table_empty('movie_directing'):
-        init.load_directors()
-    movie_data = test_table('movie_directing')
-    return render_template('test/movie_directing.html', data=movie_data)
-
-@app.route('/q3')
-def q3() -> str:
-    test_data = []
-    test_data.append(rating.analyse_ratings('low', 1)[0][0])
-    test_data.append(rating.analyse_ratings('high', 1)[0][0])
-    for i in range(1,20):
-        test_data.append(rating.analyse_ratings_genre('low', 1, i)[0][0])
-        test_data.append(rating.analyse_ratings_genre('high', 1, i)[0][0])
-    return render_template('q3.html', data=test_data)
+@app.route('/movies/<int:movie_id>/stats')
+def movie_stats(movie_id):
+    info = movie_details.select_movie(movie_id)
+    invalid_request = False
+    if not info:
+        invalid_request = True
+    else:
+        info = info[0]
+        genres = movie_details.get_genres(movie_id)
+        stats = StatsViewer(movie_id, genres)
+        movie = MovieViewer(info, invalid_movie=invalid_request)
+        
+    return render_template('movie_stats.html', stats_data=stats.get_movie_stats(), movie=movie.get_viewing_data())
 
 @app.route('/movies/<int:movie_id>')
 def show_movie(movie_id):
@@ -230,20 +132,6 @@ def show_movie(movie_id):
     movie = MovieViewer(info, rt_ratings, cast, director, invalid_request)
     return render_template('movie_details.html', movie=movie.get_viewing_data())
 
-@app.route('/rt')
-def show_all_rating():
-    movie_data = test_table('rt_ratings')
-    return render_template('test/all_rt.html', data=movie_data)
-
-
-@app.route('/q4')
-def q4() -> str:
-    #test_data = tags.analyse_tag_genre('Action')
-    #test_data = tags.analyse_tag_rating_avg()
-    #test_data = tags.analyse_tag_rating('high')
-    #test_data = tags.analyse_tag_genre_totals()
-    test_data = tags.analyse_tag_rating_totals()
-    return render_template('q4.html', data=test_data)
 
 @app.route('/search', methods = ['POST', 'GET'])
 def search_title():
@@ -257,7 +145,7 @@ def search_title():
         if results:
             for info in results:
                 m = MovieViewer(info)
-                search_results.append((m.get_viewing_data(), aggRating(m.get_movie_id())))
+                search_results.append(m.get_viewing_data())
         else:
             found = False
         return render_template('search.html', searched=form_data['search_title'], data=search_results, found=found)
@@ -275,48 +163,47 @@ def filter_movies():
                 genre_list.append(genre[1])
         results = req1.getQuery(form_data['start_year'], form_data['end_year'], form_data['sort_by'], form_data['order'], genre_list, form_data['rating'])
         filter_results = []
+        page = request.args.get(get_page_parameter(), type=int, default=1)
         found = True
-        if results:
-            for info in results:
+        if results:    
+            offset, end = get_page_limits(page, results)
+            page_data = results[offset:end]
+            for info in page_data:
                 m = MovieViewer(info)
                 filter_results.append(m.get_viewing_data())
         else:
             found = False
-        sortBy = [form_data['sort_by']]
+        
+        # pass value being sorted
+        sorting_data = [form_data['sort_by']]
         if (form_data['sort_by'] == "Release Year"):
-            sortBy.append('year')
+            sorting_data.append('year')
         elif (form_data['sort_by'] == "Title"):
-            sortBy.append('title')
+            sorting_data.append('title')
         elif (form_data['sort_by'] == "Genre"):
-            sortBy.append('genre')
+            sorting_data.append('genre')
         elif (form_data['sort_by'] == "Rating"):
-            sortBy.append('rating')
+            sorting_data.append('user_rating')
         else:
-            sortBy.append('popularity')
-        return render_template('filter.html', data=filter_results, sortBy=sortBy, found=found)
-        # return render_template('filter.html', data=results)
+            sorting_data.append('popularity')
+        
+        pagination = Pagination(page=page, total=len(results), per_page=MOVIES_PER_PAGE, record_name='movies')
+        return render_template('filter.html', data=filter_results, sortBy=sorting_data, found=found, pagination=pagination)
+
 
 @app.route('/')
 def index() -> str:
     if table_empty('movies'):
         init.load_movies()
     movie_data = test_table('movies')
-    search = False
-    q = request.args.get('q')
-    if q:
-        search = True
     page = request.args.get(get_page_parameter(), type=int, default=1)
-    offset = (page - 1) * MOVIES_PER_PAGE
-    if (len(movie_data) - offset) > MOVIES_PER_PAGE:
-        end = offset + MOVIES_PER_PAGE
-    else:
-        end = offset + (len(movie_data) % MOVIES_PER_PAGE)
+    offset, end = get_page_limits(page, movie_data)
     data = []
     page_data = movie_data[offset:end]
     for i in page_data:
-        m = MovieViewer(i, [], [])
-        data.append((m.get_viewing_data(), aggRating(m.get_movie_id())))
-    pagination = Pagination(page=page, total=len(movie_data), per_page=MOVIES_PER_PAGE, search=search, record_name='movies')
+        m = MovieViewer(i)
+        data.append(m.get_viewing_data())
+    pagination = Pagination(page=page, total=len(movie_data), per_page=MOVIES_PER_PAGE, record_name='movies')
     return render_template("home.html", data=data, genres=GENRES, filters=FILTERS, pagination=pagination)
 
 #NOTE: temporarily as my browser autmotically add a trailing backslash to urls
@@ -352,3 +239,4 @@ def load_all():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port="5000")
+
