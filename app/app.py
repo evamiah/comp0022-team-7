@@ -188,7 +188,7 @@ def filter_movies():
             sorting_data.append('popularity')
         
         pagination = Pagination(page=page, total=len(results), per_page=MOVIES_PER_PAGE, record_name='movies')
-        return render_template('filter.html', data=filter_results, sortBy=sorting_data, found=found, pagination=pagination)
+        return render_template('filter.html', data=filter_results, sorting_data=sorting_data, found=found, pagination=pagination)
 
 
 @app.route('/')
