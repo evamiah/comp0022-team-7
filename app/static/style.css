@@ -34,6 +34,18 @@ body {
     color: magenta;
 }
 
+.charts-title {
+    text-align: center;
+}
 
+.chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    gap: 1rem;
+}
 
-
+.chart-item {
+    padding: 1rem;
+    margin: 1rem;
+}

@@ -13,25 +13,71 @@ config = {
         'database': 'movie_db'
     }
 
+# helper function that gets the genre from a genre_id
+def get_genre(genre_id) -> List[Dict]:
+    connection = mysql.connector.connect(**config)
+    cursor = connection.cursor()
+    query = 'SELECT genre \
+            FROM genres \
+            WHERE genre_id = %s'
+    cursor.execute(query, (genre_id,))
+    results = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return results
+     
+
 # returns the tags that have been applied to movies in a cetrain genre, ordered by the amount of times they have been applied
-def analyse_tag_genre(genre) -> List[Dict]:
+def analyse_tag_genre(genre_id) -> List[Dict]:
     connection = mysql.connector.connect(**config)
     cursor = connection.cursor()
     query = 'SELECT tag, COUNT(*) as tag_count \
             FROM movie_tags \
             JOIN movie_genre ON movie_tags.movie_id = movie_genre.movie_id \
             JOIN genres ON movie_genre.genre_id = genres.genre_id \
-            WHERE genre = %s \
+            WHERE genres.genre_id = %s \
             GROUP BY tag \
             ORDER BY tag_count DESC'
-    cursor.execute(query, (genre,))
+    cursor.execute(query, (genre_id,))
     results = cursor.fetchall()
     cursor.close()
     connection.close()
     return results
 
 # returns the tags listed in order of the average ratings of all the movies the tags have been applied to
-def analyse_tag_rating_avg() -> List[Dict]:
+def analyse_tag_rating_avg(value) -> List[Dict]:
+    connection = mysql.connector.connect(**config)
+    cursor = connection.cursor()
+    if value == 'high':
+        query = 'SELECT tag, AVG(rating_avg) AS tag_rating\
+                FROM \
+                    (SELECT \
+                        movie_id, \
+                        AVG(rating) AS rating_avg \
+                        FROM movie_ratings \
+                        GROUP BY movie_id) AS avg_ratings \
+                JOIN movie_tags ON avg_ratings.movie_id = movie_tags.movie_id \
+                GROUP BY tag\
+                ORDER BY tag_rating DESC'
+    elif value == 'low':
+            query = 'SELECT tag, AVG(rating_avg) AS tag_rating\
+            FROM \
+                (SELECT \
+                    movie_id, \
+                    AVG(rating) AS rating_avg \
+                    FROM movie_ratings \
+                    GROUP BY movie_id) AS avg_ratings \
+            JOIN movie_tags ON avg_ratings.movie_id = movie_tags.movie_id \
+            GROUP BY tag\
+            ORDER BY tag_rating ASC'
+    cursor.execute(query)
+    results = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return results
+
+# returns a list listed in order of the average ratings of all the movies the tags have been applied to in a specific genre
+def analyse_tag_rating_genre(genre_id) -> List[Dict]:
     connection = mysql.connector.connect(**config)
     cursor = connection.cursor()
     query = 'SELECT tag, AVG(rating_avg) AS tag_rating\
@@ -42,44 +88,12 @@ def analyse_tag_rating_avg() -> List[Dict]:
                     FROM movie_ratings \
                     GROUP BY movie_id) AS avg_ratings \
             JOIN movie_tags ON avg_ratings.movie_id = movie_tags.movie_id \
+            JOIN movie_genre ON movie_tags.movie_id = movie_genre.movie_id \
+            JOIN genres ON movie_genre.genre_id = genres.genre_id \
+            WHERE genres.genre_id = %s \
             GROUP BY tag\
             ORDER BY tag_rating DESC'
-    cursor.execute(query)
-    results = cursor.fetchall()
-    cursor.close()
-    connection.close()
-    return results
-
-# returns the tags applied to movies with an average rating < 3.0 (if value ='low') or > 3.0 (if value ='high') ordered by
-# how many times they have been applied 
-def analyse_tag_rating(value) -> List[Dict]:
-    connection = mysql.connector.connect(**config)
-    cursor = connection.cursor()
-    if value == 'low':
-        query = 'SELECT tag, COUNT(*) AS tag_count \
-                FROM \
-                (SELECT \
-                    movie_id, \
-                    AVG(rating) AS rating_avg \
-                    FROM movie_ratings \
-                    GROUP BY movie_id) AS avg_ratings \
-                JOIN movie_tags ON avg_ratings.movie_id = movie_tags.movie_id \
-                WHERE rating_avg < 3.0 \
-                GROUP BY tag \
-                ORDER BY tag_count DESC'
-    elif value =='high':
-        query = 'SELECT tag, COUNT(*) AS tag_count \
-                    FROM \
-                    (SELECT \
-                        movie_id, \
-                        AVG(rating) AS rating_avg \
-                        FROM movie_ratings \
-                        GROUP BY movie_id) AS avg_ratings \
-                    JOIN movie_tags ON avg_ratings.movie_id = movie_tags.movie_id \
-                    WHERE rating_avg > 3.0 \
-                    GROUP BY tag \
-                    ORDER BY tag_count DESC'
-    cursor.execute(query)
+    cursor.execute(query, (genre_id,))
     results = cursor.fetchall()
     cursor.close()
     connection.close()

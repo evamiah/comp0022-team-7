@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Charts</title>
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/randomcolor/0.5.4/randomColor.min.js"></script>
+</head>
+<body>
+    <h1 class="charts-title">Tag Analysis Page</h1>
+    <div class='chart-grid'>
+        <div class="chart-item">
+            <div>
+                <canvas id='rating_totals_chart'></canvas>
+            </div>
+            <script>
+                var chart_data = JSON.parse('{{ rating_totals|tojson }}');
+                var labels = chart_data.map(function(item) {
+                    return item[0];
+                });
+                var values = chart_data.map(function(item) {
+                    return item[1];
+                });
+                var ctx = document.getElementById('rating_totals_chart');
+                var rating_totals_chart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Number of Tags',
+                            data: values,
+                            backgroundColor: [
+                            'rgba(255, 0, 0, 1)',
+                            'rgba(255, 51, 0, 1)',
+                            'rgba(255, 102, 0, 1)',
+                            'rgba(255, 153, 0, 1)',
+                            'rgba(255, 204, 0, 1)',
+                            'rgba(255, 255, 0, 1)',
+                            'rgba(170, 255, 0, 1)',
+                            'rgba(85, 255, 0, 1)',
+                            'rgba(0, 255, 0, 1)'
+                            ]
+                        }]
+                    },
+                    options: {
+                        plugins: { 
+                            title: {
+                            display: true,
+                            text: 'Tag Distribution by Ratings',
+                            fontSize: 18,
+                            fontColor: '#333',
+                            fontStyle: 'bold'
+                            }
+                        }
+                    }
+                });
+            </script>
+        </div>
+        <div class="chart-item">
+            <div>
+                <canvas id='genre_totals_chart'></canvas>
+            </div>
+            <script>
+                var chart_data = JSON.parse('{{ genre_totals|tojson }}');
+                var labels = chart_data.map(function(item) {
+                    return item[0];
+                });
+                var values = chart_data.map(function(item) {
+                    return item[1];
+                });
+                var randomColors = [];
+                for (var i = 0; i < values.length; i++) {
+                randomColors.push(randomColor());
+                }
+                var ctx = document.getElementById('genre_totals_chart');
+                var myPieChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Number of Tags',
+                            data: values,
+                            backgroundColor: randomColors
+                        }]
+                    },
+                    options: {
+                        plugins: { 
+                            title: {
+                            display: true,
+                            text: 'Tag Distribution by Genres',
+                            fontSize: 18,
+                            fontColor: '#333',
+                            fontStyle: 'bold'
+                            }
+                        }
+                    }
+                });
+            </script>
+        </div>
+        <div class="chart-item">
+            <div>
+                <canvas id='low_rating_chart'></canvas>
+            </div>
+            <script>
+                var chart_data = JSON.parse('{{ low_rating|tojson }}'.slice(1,-1));
+                var labels = chart_data.map(function(item) {
+                    return item[0];
+                });
+                var values = chart_data.map(function(item) {
+                    return item[1];
+                });
+                var ctx = document.getElementById('low_rating_chart');
+                var myPieChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels.slice(0, 10),
+                        datasets: [{
+                            label: 'Tag Rating',
+                            data: values.slice(0, 10),
+                        }]
+                    },
+                    options: {
+                        plugins: { 
+                            title: {
+                            display: true,
+                            text: 'Lowest Rated Tags',
+                            fontSize: 18,
+                            fontColor: '#333',
+                            fontStyle: 'bold'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Tag Name'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Tag Rating'
+                                }
+                            }
+                        }    
+                    }
+                });
+            </script>
+        </div>
+        <div class="chart-item">
+            <div>
+                <canvas id='high_rating_chart'></canvas>
+            </div>
+            <script>
+                var chart_data = JSON.parse('{{ high_rating|tojson }}'.slice(1,-1));
+                var labels = chart_data.map(function(item) {
+                    return item[0];
+                });
+                var values = chart_data.map(function(item) {
+                    return item[1];
+                });
+                var ctx = document.getElementById('high_rating_chart');
+                var myPieChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels.slice(0, 10),
+                        datasets: [{
+                            label: 'Tag Rating',
+                            data: values.slice(0, 10),
+                        }]
+                    },
+                    options: {
+                        plugins: { 
+                            title: {
+                            display: true,
+                            text: 'Highest Rated Tags',
+                            fontSize: 18,
+                            fontColor: '#333',
+                            fontStyle: 'bold'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Tag Name'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Tag Rating'
+                                }
+                            }
+                        }
+                    }
+                });
+            </script>
+        </div>
+        <div class="chart-item">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                  Select Genre
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                  <li><a class="dropdown-item" href="/tag_analysis/1">Action</a></li>
+                  <li><a class="dropdown-item" href="/tag_analysis/2">Adventure</a></li>
+                  <li><a class="dropdown-item" href="/tag_analysis/3">Animation</a></li>
+                  <li><a class="dropdown-item" href="/tag_analysis/4">Children</a></li>
+                  <li><a class="dropdown-item" href="/tag_analysis/5">Comedy</a></li>
+                  <li><a class="dropdown-item" href="/tag_analysis/6">Crime</a></li>
+                  <li><a class="dropdown-item" href="/tag_analysis/7">Documentary</a></li>
+                  <li><a class="dropdown-item" href="/tag_analysis/8">Drama</a></li>
+                  <li><a class="dropdown-item" href="/tag_analysis/9">Fantasy</a></li>
+                  <li><a class="dropdown-item" href="/tag_analysis/10">Film-Noir</a></li>
+                  <li><a class="dropdown-item" href="/tag_analysis/11">Horror</a></li>
+                  <li><a class="dropdown-item" href="/tag_analysis/12">Musical</a></li>
+                  <li><a class="dropdown-item" href="/tag_analysis/13">Mystery</a></li>
+                  <li><a class="dropdown-item" href="/tag_analysis/14">Romance</a></li>
+                  <li><a class="dropdown-item" href="/tag_analysis/15">Sci-Fi</a></li>
+                  <li><a class="dropdown-item" href="/tag_analysis/16">Thriller</a></li>
+                  <li><a class="dropdown-item" href="/tag_analysis/17">War</a></li>
+                  <li><a class="dropdown-item" href="/tag_analysis/18">Western</a></li>
+                  <li><a class="dropdown-item" href="/tag_analysis/19">IMAX</a></li>
+                  <li><a class="dropdown-item" href="/tag_analysis/20">(no genres listed)</a></li>
+                </ul>
+              </div>
+            <div>
+                <canvas id='genre_chart'></canvas>
+            </div>
+            <script>
+                var genre_name = JSON.parse('{{ current_genre|tojson }}'.slice(1,-1));
+                var chart_data = JSON.parse('{{ genre|tojson }}'.slice(1,-1));
+                var labels = chart_data.map(function(item) {
+                    return item[0];
+                });
+                var values = chart_data.map(function(item) {
+                    return item[1];
+                });
+                var ctx = document.getElementById('genre_chart');
+                var myPieChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels.slice(0, 10),
+                        datasets: [{
+                            label: 'Number of Tags',
+                            data: values.slice(0, 10)
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            title: {
+                            display: true,
+                            text: 'Most Common Tags in Genre: ' + genre_name,
+                            fontSize: 18,
+                            fontColor: '#333',
+                            fontStyle: 'bold'
+                            } 
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Tag Name'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Number of Tags'
+                                }
+                            }
+                        }
+                    }
+                });
+            </script>
+        </div>
+        <div class="chart-item">
+            <div>
+                <canvas id='genre_rating_chart'></canvas>
+            </div>
+            <script>
+                var genre_name = JSON.parse('{{ current_genre|tojson }}'.slice(1,-1));
+                var chart_data = JSON.parse('{{ genre_rating|tojson }}'.slice(1,-1));
+                var labels = chart_data.map(function(item) {
+                    return item[0];
+                });
+                var values = chart_data.map(function(item) {
+                    return item[1];
+                });
+                var ctx = document.getElementById('genre_rating_chart');
+                var myPieChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels.slice(0, 10),
+                        datasets: [{
+                            label: 'Tag Rating',
+                            data: values.slice(0, 10)
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            title: {
+                            display: true,
+                            text: 'Highest Rated Tags in Genre: ' + genre_name,
+                            fontSize: 18,
+                            fontColor: '#333',
+                            fontStyle: 'bold'
+                            } 
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Tag Name'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Tag Rating'
+                                }
+                            }
+                        }
+                    }
+                });
+            </script>
+        </div>
+    </div>
+</body>
+</html>

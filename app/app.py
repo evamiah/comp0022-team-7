@@ -7,6 +7,7 @@ import tags
 import logging
 import time
 import init
+import json
 from helpers import MovieViewer, StatsViewer
 from flask_paginate import Pagination, get_page_parameter
 
@@ -189,6 +190,17 @@ def filter_movies():
         
         pagination = Pagination(page=page, total=len(results), per_page=MOVIES_PER_PAGE, record_name='movies')
         return render_template('filter.html', data=filter_results, sorting_data=sorting_data, found=found, pagination=pagination)
+    
+@app.route('/tag_analysis/<int:genre_id>')
+def chart(genre_id) -> str:
+    rating_totals = tags.analyse_tag_rating_totals()
+    genre_totals = tags.analyse_tag_genre_totals()
+    low_rating = tags.analyse_tag_rating_avg('low')
+    high_rating = tags.analyse_tag_rating_avg('high')
+    genre = tags.analyse_tag_genre(genre_id)
+    genre_rating = tags.analyse_tag_rating_genre(genre_id)
+    current_genre = tags.get_genre(genre_id)
+    return render_template('tag_analysis.html', rating_totals=rating_totals, genre_totals=genre_totals, low_rating=json.dumps(low_rating),high_rating=json.dumps(high_rating), genre=json.dumps(genre), genre_rating=json.dumps(genre_rating), current_genre=json.dumps(current_genre))
 
 
 @app.route('/')
