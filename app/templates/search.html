@@ -9,27 +9,30 @@
 <body>
     <div class="content">
         <div class="container mt-5 mb-5">
-                    <div class="card">
-                            <div class="card-body">
-                                <h1>Search results for: {{ searched }}</h1>
-                                {% if found %}
-                                    {% for movie in data %}
-                                    <div class="col-md-4">
-                                        <div class="card h-100" style="width: 12rem">
-                                        <img src="{{ movie[0]['poster'] }}" class="card-img-top" alt="...">
-                                        <div class="card-body">
-                                            <h5 class="card-title"><a href="movies/{{ movie[0]['id'] }}">{{ movie[0]['title'] }} ({{ movie[0]['year'] }})</a></h5>
-                                            <p class="card-text">Avg User Rating: {{ movie[1] }}</p>
-                                        </div>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                {% else %}
-                                    <h2>No results found.</h2>
-                                {% endif %} 
-                            </div> <!-- card-body.// -->
-                        
-                    </div><!-- card -->
+            <h1>Search results for: {{ searched }}</h1>
+            {% if found %}
+            <div class="row gx-5 gy-5">
+                {% for movie in data %}
+                <div class="col-md-2">
+                    <div class="card h-100" style="width: 12rem">
+                    <img src="{{ movie['poster'] }}" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title"><a href="movies/{{ movie['id'] }}">{{ movie['title'] }} ({{ movie['year'] }})</a></h5>
+                        <p class="card-text">Avg User Rating: {{ movie['user_rating'] }}</p>
+                    </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+                
+            {% else %}
+            <div class="card">
+                <div class="card-body">
+                <h2>No results found.</h2>
+                </div> <!-- card-body.// -->
+            </div><!-- card -->
+            {% endif %} 
+                            
         </div> <!-- Container-->
     </div>       
 

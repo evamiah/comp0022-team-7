@@ -9,27 +9,34 @@
 <body>
     <div class="content">
         <div class="container mt-5 mb-5">
-                    <div class="card">
-                            <div class="card-body">
+                    
                                 <h1>Filter results</h1>
                                 {% if found %}
+                                <div class="row gx-5 gy-5">
+                                {{ pagination.info }}
+                                {{ pagination.links }}
+                                
                                     {% for movie in data %}
-                                    <div class="col-md-4">
+                                    <div class="col-md-2">
                                         <div class="card h-100" style="width: 12rem">
                                         <img src="{{ movie['poster'] }}" class="card-img-top" alt="...">
                                         <div class="card-body">
                                             <h5 class="card-title"><a href="movies/{{ movie['id'] }}">{{ movie['title'] }} ({{ movie['year'] }})</a></h5>
-                                            <p class="card-text">{{ sortBy[0] }}: {{ movie[sortBy[1]] }}</p>
+                                            <p class="card-text">{{ sorting_data[0] }}: {{ movie[sorting_data[1]] }}</p>
                                         </div>
                                         </div>
                                     </div>
-                                    {% endfor %}
+                                    {% endfor %}    
+                                {{ pagination.links }}
+                                </div>
                                 {% else %}
-                                    <h2>No results found.</h2>
+                                <div class="card">
+                                    <div class="card-body">
+                                    <h2>No results found with these filters.</h2>
+                                    </div> <!-- card-body.// -->
+                                </div><!-- card -->
                                 {% endif %} 
-                            </div> <!-- card-body.// -->
-                        
-                    </div><!-- card -->
+                            
         </div> <!-- Container-->
     </div>     
 </body>
