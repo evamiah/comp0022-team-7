@@ -5,6 +5,8 @@ import mysql.connector
 import json
 import csv
 from ast import literal_eval
+from extension_scripts import get_basic_info
+from movie_details import get_tmdb_id
 
 NO_OVERVIEW_VALUE = "N/A"
 
@@ -21,7 +23,7 @@ config = {
     }
 
 # helper function to make sure the titles are in the right format and to extract the date 
-def format_title(title):
+def format_title(title, movie_id):
     # remove quotes and whitespace at beginning and end
     title = title.replace("\"", "")
     title = title.strip()
@@ -32,7 +34,7 @@ def format_title(title):
         date = int(title[-5:-1])
         title = title[:-6]
     else:
-        date = 0    
+        date = 0
 
     return title, date
 
@@ -72,6 +74,26 @@ def insert_new_people(names, cursor):
             query = 'INSERT INTO people (full_name) VALUES (%s);'
             cursor.execute(query, (name,))
 
+# helper function to insert names that don't already exist in the people table
+def role_exist(movie_id, person_id, cursor):
+    query = 'SELECT movie_id, actor_id FROM movie_cast WHERE movie_id = %s and actor_id = %s'
+    cursor.execute(query, (movie_id, person_id))
+    result = cursor.fetchone()
+    if result:
+        return True
+    else:
+        return False
+
+def director_exist(movie_id, person_id, cursor):
+    query = 'SELECT movie_id, director_id FROM movie_directing WHERE movie_id = %s and director_id = %s'
+    cursor.execute(query, (movie_id, person_id))
+    result = cursor.fetchone()
+    if result:
+        return True
+    else:
+        return False
+    
+
 # helper function to find names on the people table and return their id
 def get_person_id(names, cursor):
     people_ids = []
@@ -94,7 +116,6 @@ def empty_credits(credits):
 
 # helper function to convert array read from CSV to a python array
 def format_credits(credits):
-    
     if not isinstance(credits, str):
         #if the credits are not a string, they are an array already
         return credits
@@ -116,7 +137,7 @@ def load_movies():
 
         for line in movies_csv_r:
             id = line[0]
-            title, date = format_title(line[1])
+            title, date = format_title(line[1], id)
             overview = check_overview(line[3])
             poster = line[4]
             cursor.execute('INSERT INTO movies (movie_id, title, release_year, overview, poster_path) VALUES (%s, %s, %s, %s, %s);', (id, title, date, overview, poster))
@@ -249,7 +270,7 @@ def load_people():
 
 def load_cast():
     connection = mysql.connector.connect(**config)
-    cursor = connection.cursor()
+    cursor = connection.cursor(buffered=True)
 
     # populate the table
     with open('data/cast_crew.csv', 'r') as credits_csv:
@@ -264,7 +285,8 @@ def load_cast():
             if not empty_credits(cast):
                 cast_ids = get_person_id(cast, cursor)
                 for person_id in cast_ids:
-                    cursor.execute('INSERT INTO movie_cast (movie_id, actor_id) VALUES (%s, %s);', (movie_id, person_id))
+                    if not role_exist(movie_id, person_id, cursor):
+                        cursor.execute('INSERT INTO movie_cast (movie_id, actor_id) VALUES (%s, %s);', (movie_id, person_id))
             else:
                 #if there is not a cast specified, movie's cast is N/A
                 cursor.execute('INSERT INTO movie_cast (movie_id, actor_id) VALUES (%s, %s);', (movie_id, 1))
@@ -275,7 +297,7 @@ def load_cast():
 
 def load_directors():
     connection = mysql.connector.connect(**config)
-    cursor = connection.cursor()
+    cursor = connection.cursor(buffered=True)
 
     # populate the table
     with open('data/cast_crew.csv', 'r') as credits_csv:
@@ -291,7 +313,8 @@ def load_directors():
                 director_ids = get_person_id(directors, cursor)
 
                 for person_id in director_ids:
-                    cursor.execute('INSERT INTO movie_directing (movie_id, director_id) VALUES (%s, %s);', (movie_id, person_id))
+                    if not director_exist(movie_id, person_id, cursor):
+                        cursor.execute('INSERT INTO movie_directing (movie_id, director_id) VALUES (%s, %s);', (movie_id, person_id))
             else:
                 #if no director is specified, movie's director is N/A
                 cursor.execute('INSERT INTO movie_directing (movie_id, director_id) VALUES (%s, %s);', (movie_id, 1))

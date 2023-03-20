@@ -1,6 +1,6 @@
 from typing import List, Dict
 import mysql.connector
-from extension_scripts import get_rt_ratings
+from extension_scripts import get_rt_ratings, get_basic_info
 
 config = {
         'user': 'root',
@@ -59,6 +59,24 @@ def select_options(title):
     connection.close()
     return results
 
+def update_movie_year(movie_id, year):
+    connection = mysql.connector.connect(**config)
+    cursor = connection.cursor()
+    query = 'UPDATE movies \
+                SET release_year = %s \
+                WHERE movie_id = %s'
+    cursor.execute(query, (year, movie_id))
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+def use_tmdb_year(movie_id):
+    tmdb_id = get_tmdb_id(movie_id)[0]
+    year = get_basic_info(tmdb_id, movie_id)[2]
+    if year:
+        update_movie_year(movie_id, year)
+        return year
+    return 0
 
 def select_movie(movie_id):
     connection = mysql.connector.connect(**config)
@@ -155,8 +173,8 @@ def list_genres(movie_id):
         INNER JOIN \
         genres AS g \
         ON mg.genre_id = g.genre_id \
-        WHERE mg.movie_id = ' + str(movie_id) + ' GROUP BY mg.movie_id'
-    cursor.execute(query)
+        WHERE mg.movie_id = %s GROUP BY mg.movie_id'
+    cursor.execute(query, (movie_id,))
     results = cursor.fetchone()
     cursor.close()
     connection.close()

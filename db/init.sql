@@ -1,13 +1,8 @@
 create database movie_db;
 use movie_db;
 
-CREATE TABLE movies_table (
-    movie_id INT PRIMARY KEY, 
-    title VARCHAR(100)
-    );
-
 CREATE TABLE movies (
-    movie_id INT PRIMARY KEY, 
+    movie_id INT PRIMARY KEY NOT NULL, 
     title VARCHAR(200),
     release_year INT,
     overview VARCHAR(1000),
@@ -15,7 +10,7 @@ CREATE TABLE movies (
     );
 
 CREATE TABLE genres (
-    genre_id INT PRIMARY KEY,
+    genre_id INT PRIMARY KEY NOT NULL,
     genre VARCHAR(50)
     );
 
@@ -28,42 +23,38 @@ CREATE TABLE movie_genre (
     );
 
 CREATE TABLE movie_ratings (
-    user_id INT,
-    movie_id INT,
-    rating FLOAT,
+    user_id INT NOT NULL,
+    movie_id INT NOT NULL,
+    rating FLOAT NOT NULL,
     time_stamp INT, 
-    PRIMARY KEY (user_id, movie_id, rating),
+    PRIMARY KEY (user_id, movie_id),
     FOREIGN KEY (movie_id) REFERENCES movies(movie_id)
     );
 
 CREATE TABLE rt_ratings (
-    movie_id INT,
+    movie_id INT NOT NULL,
     tomatometer INT,
     audience_score INT,
-    PRIMARY KEY (movie_id, tomatometer, audience_score),
+    CONSTRAINT PK_rt_ratings PRIMARY KEY (movie_id),
     FOREIGN KEY (movie_id) REFERENCES movies(movie_id)
 );
 
 CREATE TABLE movie_links (
-    movie_id INT,
+    movie_id INT NOT NULL,
     imdb_id VARCHAR(20) UNIQUE,
     tmdb_id VARCHAR(20),
+    CONSTRAINT PK_movie_links PRIMARY KEY (movie_id),
     FOREIGN KEY (movie_id) REFERENCES movies(movie_id)
     );
 
 CREATE TABLE movie_tags (
-    user_id INT,
-    movie_id INT,
+    user_id INT NOT NULL,
+    movie_id INT NOT NULL,
     tag VARCHAR(100),
     time_stamp INT, 
     PRIMARY KEY (user_id, movie_id, tag),
     FOREIGN KEY (movie_id) REFERENCES movies(movie_id)
     );
-
-INSERT INTO movies_table (movie_id, title) VALUES 
-(1, 'The Dark Knight'),
-(2, 'Home Alone'),
-(3, 'The Lion King');
 
 INSERT INTO genres (genre_id, genre) VALUES
 (1, 'Action'),
@@ -94,19 +85,21 @@ CREATE TABLE people (
     );
 
 INSERT INTO people (person_id, full_name) VALUES
-(0, 'N/A');
+(1, 'N/A');
 
 
 CREATE TABLE movie_cast (
-    movie_id INT,
-    actor_id INT,
+    movie_id INT NOT NULL,
+    actor_id INT NOT NULL,
+    CONSTRAINT PK_movie_cast PRIMARY KEY (movie_id, actor_id),
     FOREIGN KEY (movie_id) REFERENCES movies(movie_id),
     FOREIGN KEY (actor_id) REFERENCES people(person_id)
     );
 
 CREATE TABLE movie_directing (
-    movie_id INT,
-    director_id INT,
+    movie_id INT NOT NULL,
+    director_id INT NOT NULL,
+    CONSTRAINT PK_movie_directing PRIMARY KEY (movie_id, director_id),
     FOREIGN KEY (movie_id) REFERENCES movies(movie_id),
     FOREIGN KEY (director_id) REFERENCES people(person_id)
 );

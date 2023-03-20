@@ -1,5 +1,5 @@
 import req5
-from movie_details import aggregate_rating, list_genres, get_popularity
+from movie_details import aggregate_rating, list_genres, get_popularity, use_tmdb_year
 import rating
 # for debugging
 import logging
@@ -39,6 +39,9 @@ class MovieViewer:
         return self.info[1]
     
     def get_year(self):
+        if self.info[2] == 0:
+            update = use_tmdb_year(self.get_movie_id())
+            return update
         return self.info[2]
     
     def get_overview(self):
