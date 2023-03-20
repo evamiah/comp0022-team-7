@@ -3,10 +3,12 @@ import pandas as pd
 import tmdbsimple as tmdb
 import rottentomatoes as rt
 import requests
+import config
+
 
 from requests.exceptions import HTTPError
 
-tmdb.API_KEY = '1e97e6266061128613ab12764f041937';
+tmdb.API_KEY = config.tmdb_key;
 
 '''
 Sets default values for missing data.
