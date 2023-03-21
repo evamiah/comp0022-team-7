@@ -27,10 +27,10 @@ def getQry(movieId) -> List[Dict]:
         WHERE mu.user_id = mo.user_id \
         GROUP BY mu.user_id)),1) AS predicted_rating \
         FROM movie_ratings AS mo \
-        WHERE mo.movie_id = " + str(movieId) + " AND RAND() <= .2 \
+        WHERE mo.movie_id = %s AND RAND() <= .2 \
         GROUP BY mo.movie_id"
 
-    cursor.execute(query)
+    cursor.execute(query, (movieId,))
     results = cursor.fetchall()
     cursor.close()
     connection.close()
