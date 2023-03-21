@@ -40,11 +40,12 @@ def get_genre(genre_id) -> List[Dict]:
 # helper class to obtain values to show on front-end in dict format
 # initialised with movie info array [id, title, release_year, overview, poster_path]
 class MovieViewer:
-    def __init__(self, info, rotten_tomatoes=[], cast=[], director=[], invalid_movie=False):
+    def __init__(self, info, rotten_tomatoes=[], cast=[], director=[], full_details=False, invalid_movie=False):
         self.info = info
         self.rt = rotten_tomatoes
         self.cast = cast
         self.director = director
+        self.full_details = full_details
         self.invalid = invalid_movie
 
     def get_movie_id(self):
@@ -120,14 +121,15 @@ class MovieViewer:
             data['year'] = self.get_year()
             data['overview'] = self.get_overview()
             data['poster'] = self.get_poster()
-            data['tomatometer'] = self.get_tomatometer()
-            data['audience_score'] = self.get_audience_score()
-            data['cast'] = self.get_cast()
-            data['director'] = self.get_director()
-            data['predicted_rating'] = self.get_predicted_rating()
             data['user_rating'] = self.get_agg_rating()
             data['genre'] = self.get_genre_list()
             data['popularity'] = self.get_popularity()
+            if self.full_details:
+                data['tomatometer'] = self.get_tomatometer()
+                data['audience_score'] = self.get_audience_score()
+                data['cast'] = self.get_cast()
+                data['director'] = self.get_director()
+                data['predicted_rating'] = self.get_predicted_rating()
         else:
             data['info'] = INVALID_ID
         return data

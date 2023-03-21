@@ -46,14 +46,23 @@ def select_director(movie_id):
         return []
     return results
 
-# returns movies with title similar to searched title
-def select_options(title):
+# returns movies with title containing searched title
+def select_options(title, match=False):
     connection = mysql.connector.connect(**config)
     cursor = connection.cursor()
-    query = 'SELECT movie_id, title, release_year, overview, poster_path \
-                FROM movies \
-                WHERE title LIKE %s'
-    cursor.execute(query, ('%' + title + '%',))
+    if match:
+        query = 'SELECT movie_id, title, release_year, overview, poster_path \
+                    FROM movies \
+                    WHERE title LIKE %s OR title LIKE %s OR title LIKE %s OR title = %s'
+        start_word = '% ' + title
+        end_word =  title + ' %'
+        middle_word = '% ' + title + ' %'
+        cursor.execute(query, (start_word, end_word, middle_word, title))
+    else:
+        query = 'SELECT movie_id, title, release_year, overview, poster_path \
+                    FROM movies \
+                    WHERE title LIKE %s'
+        cursor.execute(query, ('%' + title + '%',))
     results = cursor.fetchall()
     cursor.close()
     connection.close()
