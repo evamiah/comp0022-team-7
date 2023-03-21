@@ -6,12 +6,24 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 config = {
-        'user': 'root',
-        'password': 'root',
+        'user': 'team7',
+        'password': 'G3LqY5UUTo0fK6x7nc7Q',
         'host': 'db',
         'port': '3306',
         'database': 'movie_db'
     }
+
+def get_genre_id(genre) -> List[Dict]:
+    connection = mysql.connector.connect(**config)
+    cursor = connection.cursor()
+    query = 'SELECT genre_id \
+            FROM genres \
+            WHERE genre = %s'
+    cursor.execute(query, (genre,))
+    results = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    return results
 
 def analyse_ratings(value, movie_id) -> List[Dict]:
     connection = mysql.connector.connect(**config)

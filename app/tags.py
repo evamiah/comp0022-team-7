@@ -6,26 +6,12 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 config = {
-        'user': 'root',
-        'password': 'root',
+        'user': 'team7',
+        'password': 'G3LqY5UUTo0fK6x7nc7Q',
         'host': 'db',
         'port': '3306',
         'database': 'movie_db'
-    }
-
-# helper function that gets the genre from a genre_id
-def get_genre(genre_id) -> List[Dict]:
-    connection = mysql.connector.connect(**config)
-    cursor = connection.cursor()
-    query = 'SELECT genre \
-            FROM genres \
-            WHERE genre_id = %s'
-    cursor.execute(query, (genre_id,))
-    results = cursor.fetchall()
-    cursor.close()
-    connection.close()
-    return results
-     
+    } 
 
 # returns the tags that have been applied to movies in a cetrain genre, ordered by the amount of times they have been applied
 def analyse_tag_genre(genre_id) -> List[Dict]:

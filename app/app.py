@@ -8,7 +8,7 @@ import logging
 import time
 import init
 import json
-from helpers import MovieViewer, StatsViewer
+from helpers import MovieViewer, StatsViewer, get_genre
 from flask_paginate import Pagination, get_page_parameter
 
 #docker compose setup from: https://www.devopsroles.com/deploy-flask-mysql-app-with-docker-compose/
@@ -18,8 +18,8 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
 config = {
-        'user': 'root',
-        'password': 'root',
+        'user': 'team7',
+        'password': 'G3LqY5UUTo0fK6x7nc7Q',
         'host': 'db',
         'port': '3306',
         'database': 'movie_db'
@@ -102,10 +102,9 @@ def check_rt(movie_id, info):
         movie_details.insert_rt_rating(movie_id, info[1], info[2])
         rt_ratings = movie_details.select_rt_rating(movie_id)
     return rt_ratings
-    
 
-@app.route('/movies/<int:movie_id>/stats')
-def movie_stats(movie_id):
+@app.route('/movies/<int:movie_id>/stats/<value_1>/<int:genre_id>/<value_2>')
+def movie_stats(movie_id, value_1, genre_id, value_2):
     info = movie_details.select_movie(movie_id)
     invalid_request = False
     if not info:
@@ -115,8 +114,9 @@ def movie_stats(movie_id):
         genres = movie_details.get_genres(movie_id)
         stats = StatsViewer(movie_id, genres)
         movie = MovieViewer(info, invalid_movie=invalid_request)
+        genre_name = get_genre(genre_id)[0][0]
         
-    return render_template('movie_stats.html', stats_data=stats.get_movie_stats(), movie=movie.get_viewing_data())
+    return render_template('movie_stats.html', stats_data=stats.get_movie_stats(), movie=movie.get_viewing_data(), genre_name=genre_name, value_1=value_1, value_2=value_2, movie_id=movie_id, genre_id=genre_id, genres=genres)
 
 @app.route('/movies/<int:movie_id>')
 def show_movie(movie_id):
@@ -130,8 +130,9 @@ def show_movie(movie_id):
     else:
         info = info[0]
         rt_ratings = check_rt(movie_id, info)
+        genre_id = movie_details.get_genres(movie_id)[0][0]
     movie = MovieViewer(info, rt_ratings, cast, director, invalid_request)
-    return render_template('movie_details.html', movie=movie.get_viewing_data())
+    return render_template('movie_details.html', movie=movie.get_viewing_data(), genre_id=genre_id, movie_id=movie_id)
 
 
 @app.route('/search', methods = ['POST', 'GET'])

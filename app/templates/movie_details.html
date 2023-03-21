@@ -1,12 +1,8 @@
-<!DOCTYPE html>
-<head>
-    <title>Movie</title>
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}Movie Detauls{% endblock %}
+
+{% block content %}
     {% if not movie['invalid'] %}
         <div class="content">
             <div class="container mt-5 mb-5">
@@ -51,6 +47,8 @@
                                     <p class="card-text">Genre: {{ movie['genre'] }}</p>
                                     <p class="card-text"></p>Average Rating: {{ movie['user_rating'] }}</p>
                                     <p class="card-text"></p>Predicted Rating: {{ movie['predicted_rating'] }}</p>
+
+                                    <a class="btn btn-primary" href="/movies/{{ movie_id }}/stats/low/{{ genre_id }}/low" role="button">Go To Stats</a>
                                         
 
                                 </div> <!-- card-body.// -->
@@ -74,6 +72,4 @@
             </div> <!-- Container-->
         </div>
     {% endif %}
-
-    
-</body>
+{% endblock %}
