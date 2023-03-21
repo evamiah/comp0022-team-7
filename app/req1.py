@@ -27,15 +27,18 @@ def getQuery(startYear, endYear, sortBy, order, genre_list, rating) -> List[Dict
         ON mg.genre_id = g.genre_id'
     
     queryPartTwo = ' GROUP BY m.movie_id'
-
+    year_check = True
     if ((not startYear) and (not endYear)):
-        year_check = 0
-    elif (startYear  and (not endYear)):
+        year_check = False
+    '''elif (startYear  and (not endYear)):
         year_check = 2
+        exec_param = (startYear,)
     elif ((not startYear) and endYear):
         year_check = 3
+        exec_param = (endYear,)
     else:
         year_check = 1
+        exec_param = (startYear, endYear)
 
     if (rating == "all"):
         rating_check = 0
@@ -45,35 +48,40 @@ def getQuery(startYear, endYear, sortBy, order, genre_list, rating) -> List[Dict
     if (genre_list == []):
         genre_check = 0
     else:
-        genre_check = 1
+        genre_check = 1'''
 
     query = queryPartOne
 
-    if (genre_check == 1):
+    if genre_list:
         query = whereAnd(query)
         andList = getGenreList(genre_list, "and")
         query = query + " g.genre IN" + andList
 
-    if(year_check == 1):
+    if year_check:
         query = whereAnd(query)
-        query = query + " m.release_year BETWEEN " + startYear + " AND " + endYear
-    elif(year_check == 2):
-        query = whereAnd(query)
-        query = query + " m.release_year >= " + startYear
-    elif(year_check == 3):
-        query = whereAnd(query)
-        query = query + " m.release_year <= " + endYear
+        if(startYear and endYear):
+            query = query + " m.release_year BETWEEN %s AND %s"
+            exec_param = (startYear, endYear)
+        elif(startYear  and (not endYear)):
+            query = query + " m.release_year >= %s"
+            exec_param = (startYear,)
+        elif((not startYear) and endYear):
+            query = query + " m.release_year <= %s"
+            exec_param = (endYear,)
 
     query = query + queryPartTwo
 
-    if(rating_check == 1):
+    if(rating != "all"):
         orderedRate = getRatingQuery(rating)
         query = query +  " HAVING ordered_rating" + orderedRate
 
     if (sortBy != None):
         query = getOrderBy(query,sortBy,order)
 
-    cursor.execute(query)
+    if year_check:
+        cursor.execute(query, exec_param)
+    else:
+        cursor.execute(query)
     results = cursor.fetchall()
     cursor.close()
     connection.close()
