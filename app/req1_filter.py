@@ -62,6 +62,8 @@ def get_query(start_year, end_year, sort_by, order, genre_list, and_or_or, ratin
     if (sort_by != None):
         query = get_order_by(query,sort_by,order)
 
+    print(query)
+
     if year_check:
         cursor.execute(query, exec_param)
     else:
@@ -87,11 +89,27 @@ def get_genre_list(genre_types, connector):
         string = string[:-1]
         string = string + ")"
     else:
-        string = ""
-        for genre_element in genre_types:
-            string = string + " g.genre IN ('" + genre_element + "') AND"  
-        string = string[:-4]
+        string = f" m.movie_id in {get_genre_subquery(genre_types)}"
     return string
+
+def get_genre_subquery(genre_types):
+    string = f"(SELECT sub_genre_list.movie_id From {get_sub_genre_list()} WHERE "
+    for genre_element in genre_types:
+        string = f"{string} sub_genre_list.genre_list LIKE '%{genre_element}%' AND"  
+    string = string[:-4]
+    string = string + ")"
+    return string
+
+def get_sub_genre_list():
+    return "(SELECT m.movie_id, GROUP_CONCAT(DISTINCT g.genre ORDER BY g.genre ASC) AS genre_list \
+        FROM movies AS m \
+        INNER JOIN \
+        movie_genre AS mg \
+        ON m.movie_id = mg.movie_id \
+        INNER JOIN \
+        genres AS g \
+        ON mg.genre_id = g.genre_id \
+        GROUP BY m.movie_id) AS sub_genre_list"
 
 # returns order by section in query
 def get_order_by(query,sort_by,order):
