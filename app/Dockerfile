@@ -18,8 +18,8 @@ COPY app.py /app
 COPY init.py /app
 COPY rating.py /app
 COPY movie_details.py /app
-COPY req1.py /app
-COPY req5.py /app
+COPY req1_filter.py /app
+COPY req5_predict.py /app
 COPY tags.py /app
 COPY helpers.py /app
 COPY scripts/extension_scripts.py /app

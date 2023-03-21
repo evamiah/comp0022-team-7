@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, request
 from typing import List, Dict
 import mysql.connector
-import req1
+import req1_filter
 import movie_details
 import tags
 import logging
@@ -152,6 +152,7 @@ def search_title():
             found = False
         return render_template('search.html', searched=form_data['search_title'], data=search_results, found=found)
 
+# returns filtered movie results
 @app.route('/filter', methods = ['POST', 'GET'])
 def filter_movies():
     if request.method == 'GET':
@@ -163,7 +164,7 @@ def filter_movies():
             val = request.form.get(genre[1])
             if val:
                 genre_list.append(genre[1])
-        results = req1.getQuery(form_data['start_year'], form_data['end_year'], form_data['sort_by'], form_data['order'], genre_list, form_data['rating'])
+        results = req1_filter.get_query(form_data['start_year'], form_data['end_year'], form_data['sort_by'], form_data['order'], genre_list, form_data['genre_and_or'], form_data['rating'])
         
         filter_results = []
         found = True

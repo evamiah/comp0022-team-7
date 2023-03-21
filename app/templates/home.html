@@ -80,6 +80,13 @@
                                 </header>
                                 <div class="filter-content">
                                     <div class="card-body">
+                                        <div class="form-group">
+                                            <label for="genre_and_or">Any or All</label>
+                                            <select class="form-control" id="genre_and_or" name="genre_and_or">
+                                                <option value="Any">Any</option>
+                                                <option value="All">All</option>
+                                            </select>
+                                        </div>
                                         {% for genre in genres %}
                                         <div class="custom-control custom-checkbox">
                                             <span class="float-right badge badge-light round">50</span>

@@ -1,4 +1,4 @@
-import req5
+import req5_predict
 from movie_details import aggregate_rating, list_genres, get_popularity, use_tmdb_year
 import rating
 from typing import List, Dict
@@ -95,8 +95,9 @@ class MovieViewer:
         else:
             return self.director
     
+    # returns predicted aggregate rating for movie
     def get_predicted_rating(self):
-        pred = req5.getQry(self.get_movie_id())
+        pred = req5_predict.get_qry(self.get_movie_id())
         if not pred:
             return NO_PREDICTED
         return pred[0][0]
