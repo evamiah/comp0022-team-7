@@ -163,18 +163,16 @@ def filter_movies():
             if val:
                 genre_list.append(genre[1])
         results = req1.getQuery(form_data['start_year'], form_data['end_year'], form_data['sort_by'], form_data['order'], genre_list, form_data['rating'])
+        
         filter_results = []
-        page = request.args.get(get_page_parameter(), type=int, default=1)
         found = True
-        if results:    
-            offset, end = get_page_limits(page, results)
-            page_data = results[offset:end]
-            for info in page_data:
+        if results:
+            for info in results:
                 m = MovieViewer(info)
                 filter_results.append(m.get_viewing_data())
         else:
             found = False
-        
+               
         # pass value being sorted
         sorting_data = [form_data['sort_by']]
         if (form_data['sort_by'] == "Release Year"):
@@ -188,8 +186,7 @@ def filter_movies():
         else:
             sorting_data.append('popularity')
         
-        pagination = Pagination(page=page, total=len(results), per_page=MOVIES_PER_PAGE, record_name='movies')
-        return render_template('filter.html', data=filter_results, sorting_data=sorting_data, found=found, pagination=pagination)
+        return render_template('filter.html', data=filter_results, sorting_data=sorting_data, found=found)
     
 @app.route('/tag_analysis/<int:genre_id>')
 def chart(genre_id) -> str:

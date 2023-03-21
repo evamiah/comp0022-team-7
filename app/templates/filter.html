@@ -13,8 +13,6 @@
                                 <h1>Filter results</h1>
                                 {% if found %}
                                 <div class="row gx-5 gy-5">
-                                {{ pagination.info }}
-                                {{ pagination.links }}
                                 
                                     {% for movie in data %}
                                     <div class="col-md-2">
@@ -27,7 +25,7 @@
                                         </div>
                                     </div>
                                     {% endfor %}    
-                                {{ pagination.links }}
+
                                 </div>
                                 {% else %}
                                 <div class="card">
