@@ -1,12 +1,8 @@
-<!DOCTYPE html>
-<head>
-    <title>Movie</title>
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}Movie Stats{% endblock %}
+
+{% block content %}
     {% if not movie['invalid'] %}
         <div class="content">
             <div class="container mt-5 mb-5">
@@ -26,7 +22,7 @@
                                     <p class="card-text">Genre: {{ movie['genre'] }}</p>
                                     <p class="card-text"></p>Average Rating: {{ movie['user_rating'] }}</p>
                                     <p class="card-text"></p>Predicted Rating: {{ movie['predicted_rating'] }}</p>
-                                    <p>DEBUG STATS {{ stats_data }}</p>
+                                    <!--<p>DEBUG STATS {{ stats_data }}</p>
 
                                     <p>Users who tend to rate movies low: {{ stats_data['users']['low'] }}</p>
                                     <p>Users who tend to rate movies high: {{ stats_data['users']['high'] }}</p>
@@ -34,9 +30,47 @@
                                         <p>Users who tend to rate {{ genre }} movies low: {{ value['low'] }}</p>
                                         <p>Users who tend to rate {{ genre }} movies high: {{ value['high'] }}</p>
                                     {% endfor %}
-                                    
-                                    
-                                        
+                                    -->
+
+                                    <p class="d-inline">See avg. rating of {{ movie['title'] }} by users that rate movies
+                                        <div class="dropdown d-inline-block">
+                                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                            {{ value_1 }} 
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                                <li><a class="dropdown-item" href="/movies/{{ movie_id }}/stats/low/{{ genre_id }}/low">low</a></li>
+                                                <li><a class="dropdown-item" href="/movies/{{ movie_id }}/stats/high/{{ genre_id }}/low">high</a></li>
+                                            </ul>
+                                        </div>
+                                    on avg.
+                                    </p>
+
+                                    <p>Rating: {{ stats_data['users'][value_1] }}</p>
+
+                                    <p class="d-inline">See avg. rating of {{ movie['title'] }} by users that rate 
+                                        <div class="dropdown d-inline-block">
+                                            <button class="btn btn-secondary  dropdown-toggle" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            {{ genre_name }} 
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
+                                                {% for current_genre in genres %}
+                                                    <li><a class="dropdown-item" href="/movies/{{ movie_id }}/stats/{{ value_1 }}/{{ current_genre[0] }}/{{ value_2 }}">{{ current_genre[1] }}</a></li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                        movies
+                                        <div class="dropdown d-inline-block">
+                                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton3" data-bs-toggle="dropdown" aria-expanded="false">
+                                            {{ value_2 }} 
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton3">
+                                                <li><a class="dropdown-item" href="/movies/{{ movie_id }}/stats/{{ value_1 }}/{{ genre_id }}/low">low</a></li>
+                                                <li><a class="dropdown-item" href="/movies/{{ movie_id }}/stats/{{ value_1 }}/{{ genre_id }}/high">high</a></li>
+                                            </ul>
+                                        </div>
+                                    </p>                                  
+
+                                    <p>Rating: {{ stats_data['genres'][genre_name][value_2] }}</p>
 
                                 </div> <!-- card-body.// -->
                             
@@ -59,6 +93,4 @@
             </div> <!-- Container-->
         </div>
     {% endif %}
-
-    
-</body>
+{% endblock %}

@@ -1,4 +1,3 @@
-create database movie_db;
 use movie_db;
 
 CREATE TABLE movies (

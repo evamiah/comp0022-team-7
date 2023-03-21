@@ -15,8 +15,8 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 config = {
-        'user': 'root',
-        'password': 'root',
+        'user': 'team7',
+        'password': 'G3LqY5UUTo0fK6x7nc7Q',
         'host': 'db',
         'port': '3306',
         'database': 'movie_db'

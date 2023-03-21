@@ -12,6 +12,9 @@ services:
       - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: team7
+      MYSQL_PASSWORD: G3LqY5UUTo0fK6x7nc7Q
+      MYSQL_DATABASE: movie_db
     volumes:
       - ./db:/docker-entrypoint-initdb.d/:ro
       - ./db-data:/var/lib/mysql

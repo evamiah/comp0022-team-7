@@ -1,13 +1,15 @@
 import req5
 from movie_details import aggregate_rating, list_genres, get_popularity, use_tmdb_year
 import rating
+from typing import List, Dict
+import mysql.connector
 # for debugging
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
 config = {
-        'user': 'root',
-        'password': 'root',
+        'user': 'team7',
+        'password': 'G3LqY5UUTo0fK6x7nc7Q',
         'host': 'db',
         'port': '3306',
         'database': 'movie_db'
@@ -21,6 +23,19 @@ NO_DIRECTOR_TEXT = "Directing information unavailable."
 INVALID_ID = "Movie does not exist in the database."
 NO_RATING_TEXT = "N/A"
 NO_PREDICTED = "-"
+
+# helper function that gets the genre from a genre_id
+def get_genre(genre_id) -> List[Dict]:
+    connection = mysql.connector.connect(**config)
+    cursor = connection.cursor()
+    query = 'SELECT genre \
+            FROM genres \
+            WHERE genre_id = %s'
+    cursor.execute(query, (genre_id,))
+    results = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return results
 
 # helper class to obtain values to show on front-end in dict format
 # initialised with movie info array [id, title, release_year, overview, poster_path]
