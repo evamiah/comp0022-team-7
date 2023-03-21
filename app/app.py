@@ -131,7 +131,7 @@ def show_movie(movie_id):
         info = info[0]
         rt_ratings = check_rt(movie_id, info)
         genre_id = movie_details.get_genres(movie_id)[0][0]
-    movie = MovieViewer(info, rt_ratings, cast, director, invalid_request)
+    movie = MovieViewer(info, rt_ratings, cast, director, full_details=True, invalid_movie=invalid_request)
     return render_template('movie_details.html', movie=movie.get_viewing_data(), genre_id=genre_id, movie_id=movie_id)
 
 
@@ -141,7 +141,10 @@ def search_title():
         return redirect('/')
     if request.method == 'POST':
         form_data = request.form
-        results = movie_details.select_options(form_data['search_title'])
+        if form_data.get('match_whole'):
+            results = movie_details.select_options(form_data['search_title'], True)
+        else:
+            results = movie_details.select_options(form_data['search_title'])
         search_results = []
         found = True
         if results:
@@ -173,7 +176,7 @@ def filter_movies():
                 filter_results.append(m.get_viewing_data())
         else:
             found = False
-               
+
         # pass value being sorted
         sorting_data = [form_data['sort_by']]
         if (form_data['sort_by'] == "Release Year"):
@@ -197,7 +200,7 @@ def chart(genre_id) -> str:
     high_rating = tags.analyse_tag_rating_avg('high')
     genre = tags.analyse_tag_genre(genre_id)
     genre_rating = tags.analyse_tag_rating_genre(genre_id)
-    current_genre = tags.get_genre(genre_id)
+    current_genre = get_genre(genre_id)
     return render_template('tag_analysis.html', rating_totals=rating_totals, genre_totals=genre_totals, low_rating=json.dumps(low_rating),high_rating=json.dumps(high_rating), genre=json.dumps(genre), genre_rating=json.dumps(genre_rating), current_genre=json.dumps(current_genre))
 
 
