@@ -47,7 +47,7 @@ def analyse_ratings(value, movie_id) -> List[Dict]:
                 SELECT user_id \
                 FROM movie_ratings \
                 GROUP BY user_id \
-                HAVING AVG(rating) > 3.0\
+                HAVING AVG(rating) >= 3.0\
             ) \
             AND movie_id = %s'
     cursor.execute(query, (movie_id,))
@@ -88,7 +88,7 @@ def analyse_ratings_genre(value, movie_id, genre_id) -> List[Dict]:
                     WHERE genre_id = %s \
                 ) \
                 GROUP BY user_id \
-                HAVING AVG(rating) > 3.0\
+                HAVING AVG(rating) >= 3.0\
             ) \
             AND movie_id = %s'
     cursor.execute(query, (genre_id, movie_id,))

@@ -20,17 +20,6 @@
                                 <div class="card-body p-5">
                                     <h2 class="card-title">{{ movie['title'] }} ({{ movie['year'] }})</h2>
                                     <p class="card-text">Genre: {{ movie['genre'] }}</p>
-                                    <!--<p class="card-text"></p>Average Rating: {{ movie['user_rating'] }}</p>
-                                    <p class="card-text"></p>Predicted Rating: {{ movie['predicted_rating'] }}</p>-->
-                                    <!--<p>DEBUG STATS {{ stats_data }}</p>
-
-                                    <p>Users who tend to rate movies low: {{ stats_data['users']['low'] }}</p>
-                                    <p>Users who tend to rate movies high: {{ stats_data['users']['high'] }}</p>
-                                    {% for genre, value in stats_data['genres'].items() %}
-                                        <p>Users who tend to rate {{ genre }} movies low: {{ value['low'] }}</p>
-                                        <p>Users who tend to rate {{ genre }} movies high: {{ value['high'] }}</p>
-                                    {% endfor %}
-                                    -->
 
                                     <p class="d-inline">See avg. rating of {{ movie['title'] }} by users that rate movies
                                         <div class="dropdown d-inline-block">
@@ -38,8 +27,8 @@
                                             {{ value_1 }} 
                                             </button>
                                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                                <li><a class="dropdown-item" href="/movies/{{ movie_id }}/stats/low/{{ genre_id }}/low">low</a></li>
-                                                <li><a class="dropdown-item" href="/movies/{{ movie_id }}/stats/high/{{ genre_id }}/low">high</a></li>
+                                                <li><a class="dropdown-item" href="/movies/{{ movie_id }}/stats/low/{{ genre_id }}/{{ value_2 }}">low</a></li>
+                                                <li><a class="dropdown-item" href="/movies/{{ movie_id }}/stats/high/{{ genre_id }}/{{ value_2 }}">high</a></li>
                                             </ul>
                                         </div>
                                     on avg.
