@@ -62,8 +62,6 @@ def get_query(start_year, end_year, sort_by, order, genre_list, and_or_or, ratin
     if (sort_by != None):
         query = get_order_by(query,sort_by,order)
 
-    print(query)
-
     if year_check:
         cursor.execute(query, exec_param)
     else:
