@@ -68,6 +68,7 @@ def select_options(title, match=False):
     connection.close()
     return results
 
+
 def update_movie_year(movie_id, year):
     connection = mysql.connector.connect(**config)
     cursor = connection.cursor()
@@ -79,6 +80,7 @@ def update_movie_year(movie_id, year):
     cursor.close()
     connection.close()
 
+# retrives release year from TMDb if it's not in MovieLens data
 def use_tmdb_year(movie_id):
     tmdb_id = get_tmdb_id(movie_id)[0]
     year = get_basic_info(tmdb_id, movie_id)[2]

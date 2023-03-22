@@ -11,7 +11,7 @@ import json
 from helpers import MovieViewer, StatsViewer, get_genre
 from flask_paginate import Pagination, get_page_parameter
 
-#docker compose setup from: https://www.devopsroles.com/deploy-flask-mysql-app-with-docker-compose/
+
 app = Flask(__name__)
 
 # for debugging
@@ -28,7 +28,7 @@ config = {
 MOVIES_PER_PAGE = 90
 FILTERS = ["Release Year", "Title",  "Genre", "Rating", "Popularity"]
 
-#TODO: get and all genre list with a query
+
 GENRES = [(1, 'Action'),
 (2, 'Adventure'),
 (3, 'Animation'),
@@ -66,6 +66,7 @@ def table_empty(table_name):
     connection.close()
     return count == 0 
 
+# selects all records from a table
 def test_table(table_name) -> List[Dict]:
     connection = mysql.connector.connect(**config)
     cursor = connection.cursor()
@@ -134,7 +135,7 @@ def show_movie(movie_id):
     movie = MovieViewer(info, rt_ratings, cast, director, full_details=True, invalid_movie=invalid_request)
     return render_template('movie_details.html', movie=movie.get_viewing_data(), genre_id=genre_id, movie_id=movie_id)
 
-
+# returns search title results
 @app.route('/search', methods = ['POST', 'GET'])
 def search_title():
     if request.method == 'GET':
@@ -220,12 +221,12 @@ def index() -> str:
     pagination = Pagination(page=page, total=len(movie_data), per_page=MOVIES_PER_PAGE, record_name='movies')
     return render_template("home.html", data=data, genres=GENRES, filters=FILTERS, pagination=pagination)
 
-#NOTE: temporarily as my browser autmotically add a trailing backslash to urls
+#NOTE: occasionally browsers autmotically add a trailing backslash to urls
 @app.before_request
-def clear_trailing():
-    rp = request.path 
-    if rp != '/' and rp.endswith('/'):
-        return redirect(rp[:-1])
+def clear_url():
+    url = request.path 
+    if url != '/' and url.endswith('/'):
+        return redirect(url[:-1])
 
 # loads all the tables when the first request is made, takes a while
 # can be commented out if not all tables are needed

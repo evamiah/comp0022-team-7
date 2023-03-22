@@ -2,6 +2,14 @@ body {
     background-color: ghostwhite;
 }
 
+.navbar-brand {
+    font-size: 2rem;
+}
+
+.nav-item .nav-link {
+    font-size: 1.5rem;
+}
+
 .pagination > li > a{
     background-color: white;
     color: #8700b1;
@@ -48,4 +56,12 @@ body {
 .chart-item {
     padding: 1rem;
     margin: 1rem;
+}
+
+.navbar .navbar-brand {
+    font-size: 2rem;
+}
+
+.navbar .nav-item .nav-link {
+    font-size: 1.5rem;
 }

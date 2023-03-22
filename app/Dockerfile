@@ -1,3 +1,5 @@
+#docker compose setup from: https://www.devopsroles.com/deploy-flask-mysql-app-with-docker-compose/
+
 # Use an official Python runtime as an image
 FROM python:3.10
 
@@ -5,7 +7,6 @@ FROM python:3.10
 EXPOSE 5000
 
 # Sets the working directory for following COPY and CMD instructions
-# Notice we haven’t created a directory by this name - this instruction
 # creates a directory with this name if it doesn’t exist
 WORKDIR /app
 

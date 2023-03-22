@@ -37,7 +37,7 @@ def get_genre(genre_id) -> List[Dict]:
     connection.close()
     return results
 
-# helper class to obtain values to show on front-end in dict format
+# helper class to obtain movie details to show on front-end in dict format
 # initialised with movie info array [id, title, release_year, overview, poster_path]
 class MovieViewer:
     def __init__(self, info, rotten_tomatoes=[], cast=[], director=[], full_details=False, invalid_movie=False):

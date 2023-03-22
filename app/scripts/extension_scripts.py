@@ -27,44 +27,23 @@ def rt_not_found(movie_id):
     return [movie_id, NO_DATA]
 
 
-'''
-get_title(info) -> String
-Uses TMDb API wrapper library to obtain movie's title
-    - info: tmdb.Movie().info() in dict format
-    - returns movie title string
-'''
+
 def get_title(info):
     title = info["title"]
     return title
 
+'''
+MOVIE INFO
+'''
 
-'''
-get_release_year(info) -> Int
-Uses TMDb API wrapper library to obtain movie's release year
-    - info: tmdb.Movie().info() in dict format
-    - returns movie release year
-'''
 def get_release_year(info):
     year = info["release_date"][:4]
     return int(year)
 
-'''
-get_overview(info) -> String
-Uses TMDb API wrapper library to obtain movie's overview
-    - info: tmdb.Movie().info() in dict format
-    - returns movie overview
-'''
 def get_overview(info):
     overview = info["overview"]
     return overview
 
-'''
-get_poster_path(info) -> String
-Uses TMDb API wrapper library to obtain movie's poster path
-    - info: tmdb.Movie().info() in dict format
-    - returns movie poster path
-    - poster image can be accessed at https://image.tmdb.org/t/p/w185/{{poster_path}} 
-'''
 def get_poster_path(info):
     poster = info["poster_path"]
     return poster
@@ -98,12 +77,13 @@ def get_rt_ratings(movie_id, tmdb_id, title, year):
                 return [t_score, a_score]
     return NO_DATA
 
+
+
 '''
-get_cast(movie_id) -> List[String] 
-Uses TMDb API wrapper library to obtain movie's lead actors
-    - credits: tmdb.Movie().credits() in dict format
-    - returns array of 5 lead actors, or all actors if there are less than 5 listed
+MOVIE CREDITS
 '''
+
+# returns array of 5 lead actors, or all actors if there are less than 5 listed
 def get_cast(credits):
     cast = credits["cast"]
     members = 5
@@ -115,13 +95,7 @@ def get_cast(credits):
     return response;
 
 
-'''
-get_director(movie_id) -> List[String] 
-Uses TMDb API wrapper library to obtain movie's director(s)
-    - credits: tmdb.Movie().credits() in dict format
-    - returns array of crew members under the Director job role
-    - if there is not a crew member under the Director role, returns an empty array
-'''
+# returns array of crew members under the Director job role
 def get_director(credits):
     crew = credits["crew"]
     response = []
@@ -129,6 +103,7 @@ def get_director(credits):
         if i["job"] == "Director":
             response.append(i["name"])
     return response
+
 
 
 '''
@@ -149,7 +124,7 @@ def get_movie_info(tmdb_id, movie_id):
     return [movie_id, overview, poster]
 
 '''
-get_movie_info(tmdb_id, movie_id) -> List[String]
+get_basic_info(tmdb_id, movie_id) -> List[String]
 movie_id: movieID from MovieLens datasets 
 tmdb_id: TMDb ID found in MovieLens' links.csv file
     - Uses TMDb API wrapper library to obtain movie missing title or year
